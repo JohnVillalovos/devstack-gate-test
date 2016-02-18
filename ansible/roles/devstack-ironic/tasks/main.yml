@@ -1,0 +1,4 @@
+---
+
+- name: Copy Ironic devstack local.conf
+  copy: src=local.conf dest=/home/stack/devstack/local.conf owner=stack group=stack

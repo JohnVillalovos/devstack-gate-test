@@ -1,0 +1,33 @@
+---
+
+- name: Update apt cache and upgrade packages
+  # Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+  apt: update_cache=yes cache_valid_time=3600 upgrade=dist
+  sudo: yes
+
+#- name: Upgrade packages
+#  apt: upgrade=yes
+
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - cpu-checker           # For 'kvm-ok' program
+    - git                   # We need to 'git clone' stuff
+    - htop                  # A nicer looking top
+    - nfs-common            # For sharing the directory between the host and the vagrant guest
+    - vim                   # We need to edit stuff at times
+  sudo: yes
+
+- name: Increase soft maximum number of open files
+  lineinfile:
+    dest: /etc/security/limits.conf
+    line: "*               soft    nofile          4096"
+  sudo: yes
+
+- name: Increase hard maximum number of open files
+  lineinfile:
+    dest: /etc/security/limits.conf
+    line: "*               hard    nofile          8192"
+  sudo: yes

@@ -1,0 +1,22 @@
+---
+
+  - name: Install ironic packages
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - gettext
+      - git
+      - git-review
+      - graphviz
+      - ipmitool
+      - libffi-dev
+      - libjpeg-dev
+      - libmysqlclient-dev
+      - libpq-dev
+      - libssl-dev
+      - libxml2-dev
+      - libxslt-dev
+      - psmisc
+      - python-dev
+      - python-pip
