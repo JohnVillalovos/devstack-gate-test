@@ -19,9 +19,6 @@ echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 # https://review.openstack.org/#/c/241044/ Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
 
-# # https://review.openstack.org/#/c/241790/ baremetal: skip test_network_basic_ops
-# (cd /opt/stack/old/tempest; git fetch https://review.openstack.org/openstack/tempest refs/changes/90/241790/3 && git cherry-pick FETCH_HEAD)
-
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 ARGS_RSYNC="-rlptDH"
 sudo -u jenkins mkdir -p ~stack/.cache/pip/
