@@ -20,9 +20,12 @@ echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
-ARGS_RSYNC="-rlptDH"
-sudo -u jenkins mkdir -p ~stack/.cache/pip/
-sudo -u jenkins rsync ${ARGS_RSYNC} --exclude=selfcheck.json /opt/git/pip-cache/ ~stack/.cache/pip/
+if [ -d /opt/git/pip-cache/ ]
+then
+    ARGS_RSYNC="-rlptDH"
+    sudo -u jenkins mkdir -p ~stack/.cache/pip/
+    sudo -u jenkins rsync ${ARGS_RSYNC} --exclude=selfcheck.json /opt/git/pip-cache/ ~stack/.cache/pip/
+fi
 
 $xtrace
 $errexit
