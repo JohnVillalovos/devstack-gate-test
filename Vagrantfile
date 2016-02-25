@@ -30,62 +30,42 @@ Vagrant.configure(2) do |config|
 
   # config.vm.network :public_network
 
-  # This check does NOT work if they use '--provider' :(
-  if ENV['VAGRANT_DEFAULT_PROVIDER'] == 'libvirt'
+  # ******************* Start Libvirt ******************************
+  # Assumption here is have converted the 'ubuntu/trusty64' Virtualbox box to a
+  # libvirt format using 'vagrant mutate' (which needs to be installed) and
+  # named the converted box 'trusty64'
+  # https://github.com/pradels/vagrant-libvirt
+  # https://github.com/sciurus/vagrant-mutate
 
-      # ******************* Start Libvirt ******************************
 
-      puts("Assuming provider is libvirt...")
-
-      # Assumption here is have converted the 'ubuntu/trusty64' Virtualbox box to a
-      # libvirt format using 'vagrant mutate' (which needs to be installed) and
-      # named the converted box 'trusty64'
-      # https://github.com/pradels/vagrant-libvirt
-      # https://github.com/sciurus/vagrant-mutate
-
-      # Check for required plugins
-      unless Vagrant.has_plugin?("vagrant-libvirt")
-            raise 'vagrant-libvirt (https://github.com/pradels/vagrant-libvirt) is not installed'
-      end
-      unless Vagrant.has_plugin?("vagrant-mutate")
-            raise 'vagrant-mutate (https://github.com/sciurus/vagrant-mutate) is not installed'
-      end
-
-      config.vm.box = "trusty64"
-
-      # We use libvirt to have nested virtualization
-      config.vm.provider :libvirt do |domain|
-        domain.memory = 8192
-        domain.cpus = 4
-        domain.nested = true
-        domain.volume_cache = 'none'
-      end
-
-      # This might be needed for Ansible
-      config.vm.network :private_network, ip: "192.168.32.100"
-
-      # ******************* End Libvirt ******************************
-
-  else
-
-      # ******************* Start Virtualbox ******************************
-
-      puts("Assuming provider is Virtualbox...")
-
-      # For Virtualbox using 'ubuntu/trusty64'
-      config.vm.box = "ubuntu/trusty64"
-
-      config.vm.provider "virtualbox" do |domain|
-        domain.memory = 8192
-        domain.cpus = 4
-      end
-
-      # This might be needed for Ansible
-      config.vm.network :private_network, ip: "192.168.64.100"
-
-      # ******************* End Virtualbox ******************************
-
+  # We use libvirt to have nested virtualization
+  config.vm.provider :libvirt do |domain, override|
+    # Check for required plugins
+    unless Vagrant.has_plugin?("vagrant-libvirt")
+          raise 'vagrant-libvirt (https://github.com/pradels/vagrant-libvirt) is not installed'
+    end
+    unless Vagrant.has_plugin?("vagrant-mutate")
+          raise 'vagrant-mutate (https://github.com/sciurus/vagrant-mutate) is not installed'
+    end
+    override.vm.box = "trusty64"
+    domain.memory = 8192
+    domain.cpus = 4
+    domain.nested = true
+    domain.volume_cache = 'none'
+    # This might be needed for Ansible
+    override.vm.network :private_network, ip: "192.168.32.100"
   end
+  # ******************* End Libvirt ********************************
+
+  # ******************* Start Virtualbox ***************************
+  config.vm.provider "virtualbox" do |domain, override|
+    override.vm.box = "ubuntu/trusty64"
+    domain.memory = 8192
+    domain.cpus = 4
+    # This might be needed for Ansible
+    override.vm.network :private_network, ip: "192.168.64.100"
+  end
+  # ******************* End Virtualbox *****************************
 
   # Do ansible setup
   config.vm.provision :ansible do |ansible|
