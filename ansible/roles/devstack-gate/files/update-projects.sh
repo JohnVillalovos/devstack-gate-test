@@ -11,6 +11,10 @@ echo "****: Fetching the grenade patch"
 (cd /opt/stack/new/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
 (cd /opt/stack/old/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
 
+echo "***: Debug openstack client failure"
+# https://review.openstack.org/#/c/284442/ WIP: Fail devstack if some variables are not set
+(cd /opt/stack/old/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/42/284442/1 && git cherry-pick FETCH_HEAD)
+
 echo "***: Fetching the proxy server patch for stable/liberty"
 # https://review.openstack.org/283375 Add support for proxy servers during image build
 (cd /opt/stack/old/ironic-python-agent; git fetch https://review.openstack.org/openstack/ironic-python-agent refs/changes/75/283375/1 && git cherry-pick FETCH_HEAD)
