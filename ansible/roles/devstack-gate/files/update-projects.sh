@@ -13,7 +13,7 @@ echo "****: Fetching the grenade patch"
 
 echo "***: Debug openstack client failure"
 # https://review.openstack.org/#/c/284442/ WIP: Fail devstack if some variables are not set
-(cd /opt/stack/old/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/42/284442/2 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/42/284442/3 && git cherry-pick FETCH_HEAD)
 # (cd /opt/stack/old/devstack; git remote add gerrit https://review.openstack.org/openstack-dev/devstack )
 # (cd /opt/stack/old/devstack; git review -d 284442)
 
