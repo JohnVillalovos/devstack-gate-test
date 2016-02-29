@@ -94,3 +94,17 @@ In my /opt/git/ I have these packages.
     |-- openstack-infra
     |   |-- devstack-gate
     |   `-- tripleo-ci
+
+
+Anytime major changes are made to files, the image for the VM box needs to be recreated
+as follows:
+
+Pull the latest changes. Create a package.box by running the "vagrant package" command, and 
+then add the box with the "vagrant box add" comamnd. After this you should have your directory called
+devstack-gate-test with everything, and also a Vagrantfile.package file in it.
+
+To avoid doing a rebuild every single time any minor changes are made, create a new directory
+devstack-gate-packaged, copy the Vagrantfile.package and rename it to Vagrantfile. In this file, 
+update the name of the box to whatever you named when you created add the box with the
+"vagrant box add" command. This way you would only be dealing with two directories, devstack-gate
+devstack-gate-packaged. 
