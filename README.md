@@ -95,6 +95,30 @@ In my /opt/git/ I have these packages.
     |   |-- devstack-gate
     |   `-- tripleo-ci
 
+Pre-requisites needed for running devstack-gate (assuming Ubuntu 14.04):
+1. Vagrant - latest version can be downloaded from www.vagrantup.com/downloads.html), Debian 64-bit flavor
+2. VirtualBox - latest version. Can be done by running sudo apt-get install virtualbox. Once you have it installed 
+you probably want to install guest additions in the guest OS. And you probably also want the extension pack which 
+you can get from here: www.virtualbox.org/wiki/Downloads.
+
+
+The two important scripts:
+
+ironic-grenade.sh - This file clones the devstack-gate into your workspace. References the update-projects.sh in an
+export statement. It exports all local modules grenade things, and runs baremetal tests. 
+
+update-projects.sh - This file is used to do various updates after the /opt/stack/old and /opt/stack/new are
+set up. Again, this file is referenced and sourced into ironic-grenade.sh.
+
+
+To run the tests:
+
+1. SSH into the vm using vagrant with "vagrant ssh", assuming you have already done "vagrant up".
+2. Switch to the jenkins user with "sudo su - jenkins", and run the ironic-grenade.sh script, "./ironic-grenade.sh".
+Running takes about 30-40 mins unfortunately. After which you can see the logs in /jenkins/workspace/testing/logs/.
+Specifically, grenade.sh.txt.gz.
+
+
 
 Anytime major changes are made to files, the image for the VM box needs to be recreated
 as follows:
