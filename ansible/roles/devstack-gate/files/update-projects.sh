@@ -28,6 +28,7 @@ echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 # https://review.openstack.org/#/c/290171/ Archive Ironic VM nodes console logs for 'old'
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
+(cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
