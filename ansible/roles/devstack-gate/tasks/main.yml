@@ -118,3 +118,11 @@
   copy: src=openrc dest=/home/jenkins/openrc mode=0644
   sudo: yes
   sudo_user: jenkins
+
+- name: Setup skeleton files
+  copy:
+    src: etc/skel/
+    dest: "/home/{{item}}/"
+  sudo: yes
+  sudo_user: "{{ item }}"
+  with_items: users
