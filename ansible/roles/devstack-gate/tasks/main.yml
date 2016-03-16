@@ -99,30 +99,24 @@
   with_items: users
   when: has_ssh_pub_file.stat.exists == True
 
-- name: Copy Ironic gate script
-  copy: src=ironic-grenade.sh dest=/home/jenkins/ironic-grenade.sh mode=0755
+- name: Create directories
+  # file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
+  file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner}} group={{item.group}}
+  with_items: dirs_to_create
   sudo: yes
-  sudo_user: jenkins
 
-- name: Copy update-projects.sh
-  copy: src=update-projects.sh dest=/home/jenkins/update-projects.sh mode=0644
+- name: Copy files
+  # copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
+  copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner}} group={{item.group}}
+  with_items: files_to_copy
   sudo: yes
-  sudo_user: jenkins
 
-- name: Copy jenkins ~/.bash_aliases file
-  copy: src=bash_aliases dest=/home/jenkins/.bash_aliases mode=0644
-  sudo: yes
-  sudo_user: jenkins
-
-- name: Copy openrc file
-  copy: src=openrc dest=/home/jenkins/openrc mode=0644
-  sudo: yes
-  sudo_user: jenkins
-
-- name: Setup skeleton files
+- name: Setup skeleton files, vimrc, etc...
   copy:
     src: etc/skel/
     dest: "/home/{{item}}/"
   sudo: yes
   sudo_user: "{{ item }}"
-  with_items: users
+  with_items:
+    - jenkins
+    - root
