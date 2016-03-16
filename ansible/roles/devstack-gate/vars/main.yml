@@ -31,7 +31,14 @@ files_to_copy:
      mode: "0644"
      owner: jenkins
      group: jenkins
-  -  src: remove-fluff.py
+  # (jlvillal) Was having an issue with Ansible 1.5.4 and copying directories
+  # and owner/group set, so doing this individually :(
+  -  src: bin/remove-fluff.py
+     dest: "~jenkins/bin/"
+     mode: "0755"
+     owner: jenkins
+     group: jenkins
+  -  src: bin/uncompress-gz-files.py
      dest: "~jenkins/bin/"
      mode: "0755"
      owner: jenkins
