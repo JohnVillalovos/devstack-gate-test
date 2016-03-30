@@ -22,6 +22,11 @@ echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
 (cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
 
+echo "***: Fetching the Ironic plugin grenade patch"
+(cd /opt/stack/old/ironic; git fetch https://review.openstack.org/openstack/ironic refs/changes/67/298967/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/ironic; git fetch https://review.openstack.org/openstack/ironic refs/changes/67/298967/1 && git cherry-pick FETCH_HEAD)
+
+
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
 then

@@ -134,6 +134,18 @@ export DEVSTACK_GATE_GRENADE=pullup
 export DEVSTACK_GATE_IRONIC=1
 export DEVSTACK_GATE_NEUTRON=1
 export DEVSTACK_GATE_VIRT_DRIVER=ironic
+
+# BEGIN: Since stable/mitaka ********************************************************
+#export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS="1"
+export GRENADE_PLUGINRC="enable_grenade_plugin ironic https://git.openstack.org/openstack/ironic"
+
+# Run only baremetal tests
+export DEVSTACK_GATE_TEMPEST_REGEX="baremetal"
+## I think in the future the REGEX changes to 'ironic'
+
+
+# END: Since stable/mitaka **********************************************************
+
 #export TEMPEST_CONCURRENCY=2
 export TEMPEST_CONCURRENCY=1
 # The IPA ramdisk needs at least 1GB of RAM to run
@@ -159,8 +171,6 @@ export BRANCH_OVERRIDE=default
 if [ "$BRANCH_OVERRIDE" != "default" ] ; then
 export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
 fi
-# Run only baremetal tests
-export DEVSTACK_GATE_TEMPEST_REGEX="baremetal"
 cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
 
 # Pipe in /dev/null as had strange issues occur if didn't
