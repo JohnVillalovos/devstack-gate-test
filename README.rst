@@ -1,4 +1,5 @@
-# devstack-gate-test
+devstack-gate-test
+==================
 
 Please create the directory /opt/git and have it owned by the user that will be
 running Vagrant. It is highly recommended to setup a cache of files here.
@@ -13,7 +14,7 @@ is a problem if you decide to use just the ansible portion to run on an
 OpenStack VM, as you would not be able to login.
 
 
-In my /opt/git/ I have these packages.
+In my /opt/git/ I have these packages::
 
     /opt/git/
     |-- openstack
