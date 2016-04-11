@@ -24,7 +24,6 @@ echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 
 echo "***: Fetching the Ironic plugin grenade patch"
 (cd /opt/stack/old/ironic; git fetch https://review.openstack.org/openstack/ironic refs/changes/67/298967/1 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/ironic; git fetch https://review.openstack.org/openstack/ironic refs/changes/67/298967/1 && git cherry-pick FETCH_HEAD)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
