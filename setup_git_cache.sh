@@ -1,6 +1,7 @@
 #!/bin/bash
+
 if [ ! -d /opt/git ]; then
-        sudo mkdir /opt/git
+        sudo mkdir -p /opt/git
 fi
 sudo chown $USER /opt/git
 cd /opt/git

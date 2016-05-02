@@ -5,6 +5,7 @@ devstack-gate-test
 
 Please create the directory /opt/git and have it owned by the user that will be
 running Vagrant. It is highly recommended to setup a cache of files here.
+Please see `Git Cache` for information on setting up the git cache.
 
 I recommend if on Ubuntu 14.04 to get the latest version of Vagrant from
 https://www.vagrantup.com/downloads.html and download the Debian 64-bit flavor.
@@ -15,6 +16,31 @@ sudo to root.  The user's SSH public key is copied to the 'backdoor' and the
 SSH as root. This is a problem if you decide to use just the ansible portion to
 run on an OpenStack VM, as you would not be able to login.
 
+Running on a VM, without Vagrant
+--------------------------------
+
+For those users who want to run this on a VM without using Vagrant, it can be
+done. This is not yet fully documented though. I am assuming a good knowledge
+of how to use Ansible.
+
+In the directory ``ansible/`` there is a playbook ``ansible/playbook.yml``.
+Change into the directory ``ansible``. Create an inventory file in the
+directory, for example ``hosts`` and put the name of the host you want to run
+the ansible playbook against.
+
+Then you can do:
+
+    $ ansible-playbook -vvv -i hosts playbook.yml
+
+.. note::
+    Ansible 2.0 or higher is required on the target VM. You can use Ansible
+    1.5.4 on the system that connects to the VM. But if the target and the host
+    are the same, please install Ansible 2.0 or higher.
+
+.. note::
+    There is an assumption that the ``sudo`` can happen without needing a
+    password. So you may need to use the ``-K`` flag if you require a password
+    to ``sudo``.
 
 Pre-requisites
 --------------
@@ -76,94 +102,14 @@ After this you should have your directory called devstack-gate-test with
 everything, and also a Vagrantfile.package file in it.
 
 To avoid doing a rebuild every single time any minor changes are made, create a
-new directory devstack-gate-packaged, copy the Vagrantfile.package and rename
-it to Vagrantfile. In this file, update the name of the box to whatever you
-named when you created add the box with the "vagrant box add" command. This way
-you would only be dealing with two directories, devstack-gate
+new directory ``devstack-gate-packaged``, copy the Vagrantfile.package and
+rename it to Vagrantfile. In this file, update the name of the box to whatever
+you named when you created add the box with the "vagrant box add" command. This
+way you would only be dealing with two directories, devstack-gate
 devstack-gate-packaged.
 
 
 Git Cache
 ---------
 
-In my /opt/git/ I have these packages::
-
-    /opt/git/
-    |-- openstack
-    |   |-- automaton
-    |   |-- ceilometer
-    |   |-- ceilometermiddleware
-    |   |-- cinder
-    |   |-- cliff
-    |   |-- debtcollector
-    |   |-- dib-utils
-    |   |-- diskimage-builder
-    |   |-- django_openstack_auth
-    |   |-- futurist
-    |   |-- glance
-    |   |-- glance_store
-    |   |-- heat
-    |   |-- heat-cfntools
-    |   |-- heat-templates
-    |   |-- horizon
-    |   |-- ironic
-    |   |-- ironic-lib
-    |   |-- ironic-python-agent
-    |   |-- keystone
-    |   |-- keystoneauth
-    |   |-- keystonemiddleware
-    |   |-- manila
-    |   |-- manila-ui
-    |   |-- neutron
-    |   |-- neutron-fwaas
-    |   |-- neutron-lbaas
-    |   |-- neutron-vpnaas
-    |   |-- nova
-    |   |-- octavia
-    |   |-- os-apply-config
-    |   |-- os-brick
-    |   |-- os-cloud-config
-    |   |-- os-collect-config
-    |   |-- os-net-config
-    |   |-- os-refresh-config
-    |   |-- oslo.cache
-    |   |-- oslo.concurrency
-    |   |-- oslo.config
-    |   |-- oslo.context
-    |   |-- oslo.db
-    |   |-- oslo.i18n
-    |   |-- oslo.log
-    |   |-- oslo.messaging
-    |   |-- oslo.middleware
-    |   |-- oslo.policy
-    |   |-- oslo.reports
-    |   |-- oslo.rootwrap
-    |   |-- oslo.serialization
-    |   |-- oslo.service
-    |   |-- oslo.utils
-    |   |-- oslo.versionedobjects
-    |   |-- oslo.vmware
-    |   |-- pycadf
-    |   |-- python-ironicclient
-    |   |-- requirements
-    |   |-- sahara
-    |   |-- sahara-dashboard
-    |   |-- stevedore
-    |   |-- swift
-    |   |-- taskflow
-    |   |-- tempest
-    |   |-- tempest-lib
-    |   |-- tooz
-    |   |-- tripleo-heat-templates
-    |   |-- tripleo-image-elements
-    |   |-- tripleo-incubator
-    |   |-- trove
-    |   `-- zaqar
-    |-- openstack-dev
-    |   |-- devstack
-    |   |-- devstack-WIP
-    |   |-- grenade
-    |   `-- pbr
-    |-- openstack-infra
-    |   |-- devstack-gate
-    |   `-- tripleo-ci
+Use the script ``setup_git_cache.sh`` to populate your /opt/git/ directory.
