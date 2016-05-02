@@ -25,6 +25,8 @@
     - docker.io                 # Install docker, so proxy settings get setup (if needed)
     - ebtables
     - gdb                       # To support debugging
+    - libffi-dev                # Ansible compilation
+    - libssl-dev                # Ansible compilation
   sudo: yes
 
 - name: Check if we have a /opt/git/pip-cache/
