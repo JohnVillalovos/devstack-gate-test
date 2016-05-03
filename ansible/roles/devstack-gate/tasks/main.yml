@@ -27,6 +27,7 @@
     - gdb                       # To support debugging
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
+    - python-dev                # Ansible compilation
   sudo: yes
 
 - name: Check if we have a /opt/git/pip-cache/
