@@ -3,9 +3,9 @@
 devstack-gate-test
 ==================
 
-Please create the directory /opt/git and have it owned by the user that will be
-running Vagrant. It is highly recommended to setup a cache of files here.
-Please see `Git Cache` for information on setting up the git cache.
+Please create the directory ``/opt/git`` and have it owned by the user that
+will be running Vagrant. It is highly recommended to setup a cache of files
+here. Please see `Git Cache` for information on setting up the git cache.
 
 I recommend if on Ubuntu 14.04 to get the latest version of Vagrant from
 https://www.vagrantup.com/downloads.html and download the Debian 64-bit flavor.
@@ -49,10 +49,12 @@ Pre-requisites needed for running devstack-gate (assuming Ubuntu 14.04):
 
 1. Vagrant - latest version can be downloaded from
    www.vagrantup.com/downloads.html), Debian 64-bit flavor
-2. VirtualBox - latest version. Can be done by running sudo apt-get install
-   virtualbox. Once you have it installed you probably want to install guest
+2. VirtualBox - latest version. Can be done by running ``sudo apt-get install
+   virtualbox``. Once you have it installed you probably want to install guest
    additions in the guest OS. And you probably also want the extension pack
    which you can get from here: www.virtualbox.org/wiki/Downloads.
+3. NFS server - /opt/git is synced with the VM via NFS. On Ubuntu, may be
+   installed by running ``sudo apt-get install nfs-kernel-server``.
 
 
 The two important scripts:
@@ -68,24 +70,27 @@ and sourced into ironic-grenade.sh.
 
 To run the tests:
 
-1. SSH into the vm using vagrant.
+1. Create the guest VM:
 
-	$ vagrant up
+   $ vagrant up
 
-	$ vagrant ssh
+2. SSH into the vm using vagrant.
 
-2. Switch to the jenkins user, and run the ironic-grenade.sh script.
+   $ vagrant ssh
 
-	$ sudo su - jenkins
+3. Switch to the jenkins user, and run the ironic-grenade.sh script.
 
-	$ ./ironic-grenade.sh
+   $ sudo su - jenkins
 
-Running takes about 30-40 mins unfortunately. After which you can see the logs
-in /home/jenkins/workspace/testing/logs/. Specifically, grenade.sh.txt.gz.
+   $ ./ironic-grenade.sh
+
+Running takes about 30-40 mins unfortunately. After the run, you can see the
+logs in /home/jenkins/workspace/testing/logs/. Specifically,
+``grenade.sh.txt.gz``.
 
 
 
-Anytime major changes are made to files, the image for the VM box needs to be
+Any time major changes are made to files, the image for the VM box needs to be
 recreated as follows:
 
 Pull the latest changes. Create a package.box by doing:
