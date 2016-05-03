@@ -10,6 +10,11 @@
   sudo: yes
   when: has_root_ssh_key.stat.exists == False
 
+- name: Preserve authorized_keys file for root user
+  command: cp ~root/.ssh/authorized_keys ~root/
+  ignore_errors: true
+  sudo: yes
+
 - name: Update apt cache
   # Only run "update_cache=yes" if the last one is more than 3600 seconds ago
   apt: update_cache=yes cache_valid_time=3600
@@ -112,6 +117,12 @@
   with_items: users
   when: has_ssh_pub_file.stat.exists == True
   sudo: yes
+
+- name: Put backup of authorized_keys on our users
+  shell: cat ~root/authorized_keys >> "/home/{{item}}/.ssh/authorized_keys"
+  ignore_errors: true
+  sudo: yes
+  with_items: users
 
 - name: Create directories
   # file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}

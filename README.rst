@@ -23,6 +23,12 @@ For those users who want to run this on a VM without using Vagrant, it can be
 done. This is not yet fully documented though. I am assuming a good knowledge
 of how to use Ansible.
 
+There is a fairly simple bash script to do the work. It is ``vm-setup.sh``. It
+takes care of installing the required dependencies and runs the devstack-gate
+VM setup to the point where it is ready to be snapshotted.
+
+If not using the ``vm-setup.sh`` script then the following will apply.
+
 In the directory ``ansible/`` there is a playbook ``ansible/playbook.yml``.
 Change into the directory ``ansible``. Create an inventory file in the
 directory, for example ``hosts`` and put the name of the host you want to run
@@ -41,6 +47,13 @@ Then you can do:
     There is an assumption that the ``sudo`` can happen without needing a
     password. So you may need to use the ``-K`` flag if you require a password
     to ``sudo``.
+
+.. note::
+    The puppet scripts that get run effectively lock down the root user. They
+    also change the SSH host key on the system. Because of this the Ansible
+    scripts create a user called 'backdoor' and copy the authorized_keys file
+    that existed for the ``root`` user. You can SSH in as the 'backdoor' user
+    and then sudo.
 
 Pre-requisites
 --------------
