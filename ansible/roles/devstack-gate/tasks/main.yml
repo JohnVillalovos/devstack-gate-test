@@ -33,7 +33,7 @@
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
     - python-dev                # Ansible compilation
-  sudo: yes
+  become: yes
 
 - name: Check if we have a /opt/git/pip-cache/
   stat: path="/opt/git/pip-cache"
@@ -42,30 +42,30 @@
 - name: Create /root/.cache/pip/ directory
   file: path=/root/.cache/pip state=directory mode=0755 recurse=yes
   when: has_pip_cache.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: rsync the pip cache
   command: rsync -rlptDH --exclude=selfcheck.json /opt/git/pip-cache/ /root/.cache/pip/
   when: has_pip_cache.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: Clone openstack-infra/system-config
   git: dest=/root/system-config repo="https://github.com/openstack-infra/system-config"
-  sudo: yes
+  become: yes
 
 - name: Run system-config/install_puppet.sh
   shell: /root/system-config/install_puppet.sh
-  sudo: yes
+  become: yes
 
 - name: Run system-config/install_modules.sh
   shell: /root/system-config/install_modules.sh
-  sudo: yes
+  become: yes
 
 - name: Run puppet apply
   shell: >
     puppet apply --modulepath=/root/system-config/modules:/etc/puppet/modules
     -e "class { openstack_project::single_use_slave: install_users => false, enable_unbound => false, ssh_key => \"$( cat .ssh/id_rsa.pub | awk '{print $2}' )\" }"
-  sudo: yes
+  become: yes
 
 # Recommend to NOT add the user 'stack' as it can make things break.
 # The 'jenkins' user/group should have already been created by the
@@ -77,8 +77,8 @@
   group:
     name: "{{item}}"
     state: present
-  sudo: yes
-  with_items: users
+  become: yes
+  with_items: "{{ users }}"
 
 - name: Create users
   user:
@@ -86,8 +86,8 @@
     group: "{{item}}"
     state: present
     shell: /bin/bash
-  sudo: yes
-  with_items: users
+  become: yes
+  with_items: "{{ users }}"
 
 - name: Ensure users can sudo without password
   template:
@@ -96,15 +96,15 @@
     owner: root
     group: root
     mode: 0440
-  sudo: yes
-  with_items: users
+  become: yes
+  with_items: "{{ users }}"
 
 - name: Delete any existing SSH public keys
   # Had case where the existing file was wonky, so lets just delete them if
   # they exist
   file: path="/home/{{item}}/.ssh/authorized_keys" state=absent
-  with_items: users
-  sudo: yes
+  with_items: "{{ users }}"
+  become: yes
 
 - name: Check if we have a ~/.ssh/id_rsa.pub file
   stat: path="~/.ssh/id_rsa.pub"
@@ -114,34 +114,34 @@
   authorized_key:
     user: "{{item}}"
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-  with_items: users
+  with_items: "{{ users }}"
   when: has_ssh_pub_file.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: Put backup of authorized_keys on our users
   shell: cat ~root/authorized_keys >> "/home/{{item}}/.ssh/authorized_keys"
   ignore_errors: true
-  sudo: yes
-  with_items: users
+  become: yes
+  with_items: "{{ users }}"
 
 - name: Create directories
   # file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner}} group={{item.group}}
-  with_items: dirs_to_create
-  sudo: yes
+  with_items: "{{ dirs_to_create }}"
+  become: yes
 
 - name: Copy files
   # copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner}} group={{item.group}}
-  with_items: files_to_copy
-  sudo: yes
+  with_items: "{{ files_to_copy }}"
+  become: yes
 
 - name: Setup skeleton files, vimrc, etc...
   copy:
     src: etc/skel/
     dest: "/home/{{item}}/"
-  sudo: yes
-  sudo_user: "{{ item }}"
+  become: yes
+  become_user: "{{ item }}"
   with_items:
     - jenkins
     - root

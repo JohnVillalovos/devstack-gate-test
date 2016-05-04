@@ -7,17 +7,22 @@
   ignore_errors: true
   changed_when: false
   register: pip_is_installed
-  changed_when: false
 
 - name: Download pip.
   # FIXME: (jlvillal) Should use get_url, but had issue with it not using proxy server
   # get_url: url=https://bootstrap.pypa.io/get-pip.py dest={{ pip_download_dest }}
-  command: "wget -O {{ pip_download_dest }}/get-pip.py https://bootstrap.pypa.io/get-pip.py"
+  # NOTE(cinerama): This should work
+  get_url:
+    url: "https://bootstrap.pypa.io/get-pip.py"
+    dest: "{{ pip_download_dest }}/get-pip.py"
   when: pip_is_installed.rc != 0
+  environment:
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env','https_proxy') }}"
 
 - name: Install pip.
   command: "{{ python }} {{ pip_download_dest }}/get-pip.py"
-  sudo: yes
+  become: yes
   when: pip_is_installed.rc != 0
 
 - name: Delete get-pip.py.
@@ -34,12 +39,12 @@
 
 - name: Install required version of pip.
   command: "{{ pip }} install pip=={{ pip_version }}"
-  sudo: yes
+  become: yes
   when: pip_version != None and pip_installed_version.stdout != pip_version and pip_version != "LATEST"
 
 - name: Upgrade to latest version of pip installed packages.
   command: "{{ pip }} install -U pip tox pbr virtualenv setuptools"
   register: pip_latest_output
-  sudo: yes
+  become: yes
   changed_when: pip_latest_output.stdout.find('Requirement already up-to-date') == -1
   when: pip_version == None or pip_version == "LATEST"
