@@ -26,6 +26,13 @@ echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
 
+echo "***: Fix ovs-vsctl executed in worlddump.py failed issue"
+# https://review.openstack.org/#/c/311055/
+(cd /opt/stack/new/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/55/311055/1 && git cherry-pick FETCH_HEAD)
+
+echo "***: Stop using git:// and be nice to people behind proxy servers"
+# https://review.openstack.org/#/c/313123/
+(cd /opt/stack/old/ironic-python-agent; git fetch https://git.openstack.org/openstack/ironic-python-agent refs/changes/23/313123/1 && git cherry-pick FETCH_HEAD)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
