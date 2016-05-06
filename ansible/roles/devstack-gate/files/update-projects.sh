@@ -28,12 +28,12 @@ echo "***: Fetching the Ironic disable cleaning patch"
 
 echo "***: Fix ovs-vsctl executed in worlddump.py failed issue"
 # https://review.openstack.org/#/c/311055/
-(cd /opt/stack/new/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/55/311055/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/55/311055/2 && git cherry-pick FETCH_HEAD)
 
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
-(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/5 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
 
 echo "***: Stop using git:// and be nice to people behind proxy servers"
 # https://review.openstack.org/#/c/313123/
