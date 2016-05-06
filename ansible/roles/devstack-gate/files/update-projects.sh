@@ -30,9 +30,20 @@ echo "***: Fix ovs-vsctl executed in worlddump.py failed issue"
 # https://review.openstack.org/#/c/311055/
 (cd /opt/stack/new/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/55/311055/1 && git cherry-pick FETCH_HEAD)
 
+echo "***: Export the 'short_source' function"
+# https://review.openstack.org/#/c/313132/
+(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/5 && git cherry-pick FETCH_HEAD)
+
 echo "***: Stop using git:// and be nice to people behind proxy servers"
 # https://review.openstack.org/#/c/313123/
 (cd /opt/stack/old/ironic-python-agent; git fetch https://git.openstack.org/openstack/ironic-python-agent refs/changes/23/313123/1 && git cherry-pick FETCH_HEAD)
+
+echo "***: Allow creating floating ip address with Neutron enabled"
+# https://review.openstack.org/#/c/313600/
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/00/313600/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/00/313600/1 && git cherry-pick FETCH_HEAD)
+
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
