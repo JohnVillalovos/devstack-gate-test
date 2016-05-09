@@ -13,6 +13,11 @@ echo "****: Fetching the grenade patch"
 (cd /opt/stack/new/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
 (cd /opt/stack/old/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
 
+echo "****: Fetching debug grenade patch..."
+# https://review.openstack.org/#/c/314334/ WIP: Debug
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
+
 echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 # https://review.openstack.org/#/c/241044/ Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
