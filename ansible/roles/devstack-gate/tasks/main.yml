@@ -78,7 +78,7 @@
     name: "{{item}}"
     state: present
   sudo: yes
-  with_items: users
+  with_items: '{{users}}'
 
 - name: Create users
   user:
@@ -87,7 +87,7 @@
     state: present
     shell: /bin/bash
   sudo: yes
-  with_items: users
+  with_items: '{{users}}'
 
 - name: Ensure users can sudo without password
   template:
@@ -97,13 +97,13 @@
     group: root
     mode: 0440
   sudo: yes
-  with_items: users
+  with_items: '{{users}}'
 
 - name: Delete any existing SSH public keys
   # Had case where the existing file was wonky, so lets just delete them if
   # they exist
   file: path="/home/{{item}}/.ssh/authorized_keys" state=absent
-  with_items: users
+  with_items: '{{users}}'
   sudo: yes
 
 - name: Check if we have a ~/.ssh/id_rsa.pub file
@@ -114,7 +114,7 @@
   authorized_key:
     user: "{{item}}"
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-  with_items: users
+  with_items: '{{users}}'
   when: has_ssh_pub_file.stat.exists == True
   sudo: yes
 
@@ -122,18 +122,18 @@
   shell: cat ~root/authorized_keys >> "/home/{{item}}/.ssh/authorized_keys"
   ignore_errors: true
   sudo: yes
-  with_items: users
+  with_items: '{{users}}'
 
 - name: Create directories
   # file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner}} group={{item.group}}
-  with_items: dirs_to_create
+  with_items: '{{dirs_to_create}}'
   sudo: yes
 
 - name: Copy files
   # copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner}} group={{item.group}}
-  with_items: files_to_copy
+  with_items: '{{files_to_copy}}'
   sudo: yes
 
 - name: Setup skeleton files, vimrc, etc...
