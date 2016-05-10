@@ -44,7 +44,6 @@ echo "***: Fix ovs-vsctl executed in worlddump.py failed issue"
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
 (cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
 
 
 # ironic-python-agent project patches
