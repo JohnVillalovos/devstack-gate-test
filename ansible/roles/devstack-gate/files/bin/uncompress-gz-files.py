@@ -24,13 +24,18 @@ BASE_DIR = os.path.abspath('.')
 
 
 def main():
-    for filename in sorted(os.listdir(BASE_DIR)):
-        full_path = os.path.join(BASE_DIR, filename)
-        if not filename.endswith('.gz'):
-            continue
-        cmd = ['gunzip', full_path]
-        print "Exec: {}".format(' '.join(cmd))
-        subprocess.check_call(cmd)
+    uncompress_files(BASE_DIR)
+
+
+def uncompress_files(directory):
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for filename in filenames:
+            full_path = os.path.join(dirpath, filename)
+            if not filename.endswith('.gz'):
+                continue
+            cmd = ['gunzip', full_path]
+            print "Exec: {}".format(' '.join(cmd))
+            subprocess.check_call(cmd)
 
 
 if '__main__' == __name__:
