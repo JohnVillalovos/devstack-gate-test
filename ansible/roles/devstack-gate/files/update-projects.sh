@@ -8,7 +8,7 @@ set -o errexit
 xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
-# grenade project patches
+# grenade project patches  ****************************************************
 echo "****: Fetching the grenade patch"
 # https://review.openstack.org/#/c/241018/ Support TEMPEST_REGEX environment variable
 (cd /opt/stack/new/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
@@ -25,7 +25,7 @@ echo "***: Allow creating floating ip address with Neutron enabled"
 (cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/00/313600/1 && git cherry-pick FETCH_HEAD)
 
 
-# devstack-gate project patches
+# devstack-gate project patches  ****************************************************
 echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 # https://review.openstack.org/#/c/241044/ Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
@@ -36,18 +36,19 @@ echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 (cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
 
 
-# devstack project patches
+# devstack project patches  ****************************************************
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
 (cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
 
 
-# ironic-python-agent project patches
+# ironic-python-agent project patches  ****************************************************
 echo "***: Stop using git:// and be nice to people behind proxy servers"
 # https://review.openstack.org/#/c/313123/
 (cd /opt/stack/old/ironic-python-agent; git fetch https://git.openstack.org/openstack/ironic-python-agent refs/changes/23/313123/1 && git cherry-pick FETCH_HEAD)
 
-# ironic project patches
+
+# ironic project patches  ****************************************************
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
@@ -56,9 +57,6 @@ echo "***: Enable download of tinyipa prebuilt image"
 # https://review.openstack.org/#/c/314933/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/33/314933/3 && git cherry-pick FETCH_HEAD || git reset)
 
-echo "***: Update tempest compute flavor_ref/flavor_ref_alt"
-# https://review.openstack.org/#/c/314662/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/62/314662/1 && git cherry-pick FETCH_HEAD)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
