@@ -37,10 +37,6 @@ echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 
 
 # devstack project patches
-echo "***: Fix ovs-vsctl executed in worlddump.py failed issue"
-# https://review.openstack.org/#/c/311055/
-(cd /opt/stack/new/devstack; git fetch https://review.openstack.org/openstack-dev/devstack refs/changes/55/311055/2 && git cherry-pick FETCH_HEAD || git reset)
-
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
 (cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
@@ -55,6 +51,10 @@ echo "***: Stop using git:// and be nice to people behind proxy servers"
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
+
+echo "***: Enable download of tinyipa prebuilt image"
+# https://review.openstack.org/#/c/314933/
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/33/314933/3 && git cherry-pick FETCH_HEAD || git reset)
 
 echo "***: Update tempest compute flavor_ref/flavor_ref_alt"
 # https://review.openstack.org/#/c/314662/

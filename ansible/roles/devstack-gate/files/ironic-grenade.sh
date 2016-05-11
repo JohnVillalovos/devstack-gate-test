@@ -157,6 +157,9 @@ export DEVSTACK_LOCAL_CONFIG="IRONIC_DEPLOY_DRIVER_ISCSI_WITH_IPA=True"
 export IRONIC_RAMDISK_TYPE=tinyipa
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_RAM=512"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_COUNT=3"
+# Bug in stable/mitaka. Make sure it is true to use tinyipa, though that is the
+# default.
+export IRONIC_BUILD_DEPLOY_RAMDISK=true
 
 
 # For CoreOS
