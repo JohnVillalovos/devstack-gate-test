@@ -8,7 +8,7 @@ set -o errexit
 xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
-# grenade project patches  ****************************************************
+# ***** grenade project patches  ****************************************************
 echo "****: Fetching the grenade patch"
 # https://review.openstack.org/#/c/241018/ Support TEMPEST_REGEX environment variable
 (cd /opt/stack/new/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
@@ -19,13 +19,13 @@ echo "****: Fetching debug grenade patch..."
 (cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
 (cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
 
-echo "***: Allow creating floating ip address with Neutron enabled"
-# https://review.openstack.org/#/c/313600/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/00/313600/1 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/00/313600/1 && git cherry-pick FETCH_HEAD)
+echo "***: Open up firewall for ironic provisioning"
+# https://review.openstack.org/#/c/315268/
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
 
 
-# devstack-gate project patches  ****************************************************
+# ***** devstack-gate project patches  ****************************************************
 echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
 # https://review.openstack.org/#/c/241044/ Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
@@ -36,15 +36,17 @@ echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 (cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
 
 
-# devstack project patches  ****************************************************
+# ***** devstack project patches  ****************************************************
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
 (cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
 
 
-# ironic-python-agent project patches  ****************************************************
+# ***** ironic-python-agent project patches  ****************************************************
+# .....
 
-# ironic project patches  ****************************************************
+
+# ***** ironic project patches  ****************************************************
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
@@ -52,6 +54,11 @@ echo "***: Fetching the Ironic disable cleaning patch"
 echo "***: Enable download of tinyipa prebuilt image"
 # https://review.openstack.org/#/c/314933/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/33/314933/3 && git cherry-pick FETCH_HEAD || git reset)
+
+echo "***: Setup for using the Grenade 'early_create' phase"
+# https://review.openstack.org/#/c/316234/
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/2 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/2 && git cherry-pick FETCH_HEAD)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
