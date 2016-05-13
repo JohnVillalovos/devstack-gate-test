@@ -32,7 +32,7 @@ def uncompress_files(directory):
         dirnames.sort()
         for filename in sorted(filenames):
             full_path = os.path.join(dirpath, filename)
-            if not filename.endswith('.gz'):
+            if not filename.endswith('.txt.gz'):
                 continue
             cmd = ['gunzip', full_path]
             print "Exec: {}".format(' '.join(cmd))
