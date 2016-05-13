@@ -43,10 +43,6 @@ echo "***: Export the 'short_source' function"
 
 
 # ironic-python-agent project patches  ****************************************************
-echo "***: Stop using git:// and be nice to people behind proxy servers"
-# https://review.openstack.org/#/c/313123/
-(cd /opt/stack/old/ironic-python-agent; git fetch https://git.openstack.org/openstack/ironic-python-agent refs/changes/23/313123/1 && git cherry-pick FETCH_HEAD)
-
 
 # ironic project patches  ****************************************************
 echo "***: Fetching the Ironic disable cleaning patch"
