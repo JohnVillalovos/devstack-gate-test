@@ -29,7 +29,8 @@ def main():
 
 def uncompress_files(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
-        for filename in filenames:
+        dirnames.sort()
+        for filename in sorted(filenames):
             full_path = os.path.join(dirpath, filename)
             if not filename.endswith('.gz'):
                 continue
