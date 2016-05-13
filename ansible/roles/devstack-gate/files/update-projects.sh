@@ -57,8 +57,8 @@ echo "***: Enable download of tinyipa prebuilt image"
 
 echo "***: Setup for using the Grenade 'early_create' phase"
 # https://review.openstack.org/#/c/316234/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/3 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/3 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/5 && git cherry-pick FETCH_HEAD)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
