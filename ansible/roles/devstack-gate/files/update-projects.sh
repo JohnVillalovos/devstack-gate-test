@@ -24,6 +24,11 @@ echo "***: Open up firewall for ironic provisioning"
 (cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
 (cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
 
+echo "***: Skip cinder test if c-api not enabled"
+# https://review.openstack.org/#/c/317076/
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/5 && git cherry-pick FETCH_HEAD)
+
 
 # ***** devstack-gate project patches  ****************************************************
 echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
@@ -57,8 +62,13 @@ echo "***: Enable download of tinyipa prebuilt image"
 
 echo "***: Setup for using the Grenade 'early_create' phase"
 # https://review.openstack.org/#/c/316234/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/5 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/7 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/7 && git cherry-pick FETCH_HEAD || git reset)
+
+echo "***: Update resources subnet CIDR"
+# https://review.openstack.org/#/c/317082/
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
