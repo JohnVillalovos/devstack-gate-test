@@ -26,8 +26,8 @@ echo "***: Open up firewall for ironic provisioning"
 
 echo "***: Skip cinder test if c-api not enabled"
 # https://review.openstack.org/#/c/317076/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/5 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/5 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/6 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/6 && git cherry-pick FETCH_HEAD || git reset)
 
 
 # ***** devstack-gate project patches  ****************************************************
@@ -69,6 +69,11 @@ echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
 (cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
+
+echo "***: Fix shutdown.sh & upgrade.sh for grenade"
+# https://review.openstack.org/317139
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/2 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/2 && git cherry-pick FETCH_HEAD || git reset)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
