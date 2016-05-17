@@ -9,16 +9,6 @@ xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
 # ***** grenade project patches  ****************************************************
-echo "****: Fetching the grenade patch"
-# https://review.openstack.org/#/c/241018/ Support TEMPEST_REGEX environment variable
-(cd /opt/stack/new/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/old/grenade; git fetch https://review.openstack.org/openstack-dev/grenade refs/changes/18/241018/4 && git cherry-pick FETCH_HEAD)
-
-echo "****: Fetching debug grenade patch..."
-# https://review.openstack.org/#/c/314334/ WIP: Debug
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/34/314334/1 && git cherry-pick FETCH_HEAD)
-
 echo "***: Open up firewall for ironic provisioning"
 # https://review.openstack.org/#/c/315268/
 (cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
@@ -30,11 +20,14 @@ echo "***: Skip cinder test if c-api not enabled"
 (cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/6 && git cherry-pick FETCH_HEAD || git reset)
 
 
-# ***** devstack-gate project patches  ****************************************************
-echo "***: Fetching the devstack-gate TEMPEST_REGEX patch"
-# https://review.openstack.org/#/c/241044/ Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
-(cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
+# ***** tempest project patches  ****************************************************
+echo "****: Fetching the tempest smoke patch"
+# https://review.openstack.org/#/c/315422/
+(cd /opt/stack/new/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/old/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
 
+
+# # ***** devstack-gate project patches  ****************************************************
 echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
 # https://review.openstack.org/#/c/290171/ Archive Ironic VM nodes console logs for 'old'
 (cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
