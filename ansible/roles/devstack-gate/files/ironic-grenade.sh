@@ -171,6 +171,10 @@ export IRONIC_BUILD_DEPLOY_RAMDISK=true
 
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_RAMDISK_TYPE=$IRONIC_RAMDISK_TYPE"
 
+# Need to set IRONIC_IPXE_ENABLED value as default value changed between Mitaka
+# and Newton. Need to have consistent value.
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_IPXE_ENABLED=False"
+
 
 # export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_HW_NODE_DISK=2"
 # export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_DISK=2"

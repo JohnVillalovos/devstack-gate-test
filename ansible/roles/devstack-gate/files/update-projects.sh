@@ -72,8 +72,8 @@ echo "***: Update resources subnet CIDR"
 
 echo "***: Fix shutdown.sh & upgrade.sh for grenade"
 # https://review.openstack.org/317139
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/2 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/2 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/3 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/3 && git cherry-pick FETCH_HEAD || git reset)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
