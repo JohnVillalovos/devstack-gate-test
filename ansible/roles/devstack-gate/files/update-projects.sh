@@ -67,8 +67,8 @@ echo "***: Setup for using the Grenade 'early_create' phase"
 
 echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
 
 echo "***: Fix shutdown.sh & upgrade.sh for grenade"
 # https://review.openstack.org/317139
