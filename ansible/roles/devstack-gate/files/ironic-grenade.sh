@@ -3,6 +3,8 @@
 set -o xtrace
 set -o errexit
 
+
+export LANG=en_US.utf8
 export REPO_URL=https://git.openstack.org
 export ZUUL_URL=/home/jenkins/cache-workspace
 mkdir -p $ZUUL_URL

@@ -15,6 +15,8 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+export LANG=en_US.utf8
+
 echo "Install pip..."
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
