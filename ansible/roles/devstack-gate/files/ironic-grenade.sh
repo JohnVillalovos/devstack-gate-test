@@ -141,11 +141,6 @@ export DEVSTACK_GATE_VIRT_DRIVER=ironic
 #export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS="1"
 export GRENADE_PLUGINRC="enable_grenade_plugin ironic https://git.openstack.org/openstack/ironic"
 
-# Run only baremetal tests
-export DEVSTACK_GATE_TEMPEST_REGEX="baremetal"
-## I think in the future the REGEX changes to 'ironic'
-
-
 # END: Since stable/mitaka **********************************************************
 
 #export TEMPEST_CONCURRENCY=2
