@@ -11,8 +11,8 @@ set -o xtrace
 # ***** grenade project patches  ****************************************************
 echo "***: Open up firewall for ironic provisioning"
 # https://review.openstack.org/#/c/315268/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD)
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
 
 echo "***: Skip cinder test if c-api not enabled"
 # https://review.openstack.org/#/c/317076/
@@ -28,10 +28,10 @@ echo "****: Fetching the tempest smoke patch"
 
 
 # # ***** devstack-gate project patches  ****************************************************
-echo "***: Fetching: Archive Ironic VM nodes console logs for 'old' patch"
-# https://review.openstack.org/#/c/290171/ Archive Ironic VM nodes console logs for 'old'
-(cd /opt/stack/new/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
-(cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/71/290171/1 && git cherry-pick FETCH_HEAD)
+echo "***: WIP: Add some debugging code (PS4 & xtrace)"
+# https://review.openstack.org/#/c/318227/
+(cd /opt/stack/new/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
+(cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
 
 
 # ***** devstack project patches  ****************************************************
@@ -49,24 +49,9 @@ echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
 (cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
 
-echo "***: Enable download of tinyipa prebuilt image"
-# https://review.openstack.org/#/c/314933/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/33/314933/3 && git cherry-pick FETCH_HEAD || git reset)
-
-echo "***: Setup for using the Grenade 'early_create' phase"
-# https://review.openstack.org/#/c/316234/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/7 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/34/316234/7 && git cherry-pick FETCH_HEAD || git reset)
-
 echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
-
-echo "***: Fix shutdown.sh & upgrade.sh for grenade"
-# https://review.openstack.org/317139
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/5 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/39/317139/5 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD || git reset)
 
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
