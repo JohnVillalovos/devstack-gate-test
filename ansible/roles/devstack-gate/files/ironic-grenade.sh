@@ -3,6 +3,20 @@
 set -o xtrace
 set -o errexit
 
+# short_source prints out the current location of the caller in a way
+# that strips redundant directories. This is useful for PS4 usage.
+function short_source {
+    saveIFS=$IFS
+    IFS=" "
+    called=($(caller 0))
+    IFS=$saveIFS
+    file=${called[2]}
+    printf "%-40s " "$file:${called[1]}:${called[0]}"
+}
+# PS4 is exported to child shells and uses the 'short_source' function, so
+# export it so child shells have access to the 'short_source' function also.
+export -f short_source
+export PS4='+ $(short_source):   '
 
 export LANG=en_US.utf8
 export REPO_URL=https://git.openstack.org
@@ -189,7 +203,9 @@ fi
 cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
 
 # Pipe in /dev/null as had strange issues occur if didn't
-./safe-devstack-vm-gate-wrap.sh </dev/null
+./safe-devstack-vm-gate-wrap.sh </dev/null 2>&1 | tee ~/console.txt
+cp ~/console.txt /opt/stack/logs/console.txt
+cd /opt/stack/logs/ && ~/bin/uncompress-gz-files.py > /dev/null
 
 if [ -d /opt/git/pip-cache/ ]
 then

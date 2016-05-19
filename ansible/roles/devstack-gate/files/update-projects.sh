@@ -19,6 +19,11 @@ echo "***: Skip cinder test if c-api not enabled"
 (cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/6 && git cherry-pick FETCH_HEAD || git reset)
 (cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/76/317076/6 && git cherry-pick FETCH_HEAD || git reset)
 
+echo "***: Enable PS4 for grenade.sh"
+# https://review.openstack.org/#/c/318352/
+(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
+(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
+
 
 # ***** tempest project patches  ****************************************************
 echo "****: Fetching the tempest smoke patch"
