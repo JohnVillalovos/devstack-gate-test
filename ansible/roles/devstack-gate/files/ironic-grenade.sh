@@ -66,75 +66,6 @@ export DEVSTACK_GATE_SETTINGS="/home/jenkins/update-projects.sh"
 
 
 # From openstack-infra/project-config/jenkins/jobs/devstack-gate.yaml
-#  # Simulate Ironic
-#  #  name: '{pipeline}-tempest-dsvm-ironic-pxe_ssh{job-suffix}'
-#  # - devstack-virtual-ironic:
-#  #     postgres: 0
-#  #     build-ramdisk: 1
-#  #     deploy_driver: pxe_ssh
-#  #     deploy-with-ipa: 0
-#  #     client-from-source: 0
-#  #     ironic-lib-from-source: 0
-#  #     ipxe-enabled: 0
-#  #     branch-override: '{branch-override}'
-#  #     tempest-env: 'DEVSTACK_GATE_TEMPEST_REGEX=baremetal'
-#  #     devstack-timeout: 120
-#  export PROJECTS="openstack/ironic $PROJECTS"
-#  export PROJECTS="openstack/ironic-lib $PROJECTS"
-#  export PROJECTS="openstack/ironic-python-agent $PROJECTS"
-#  export PROJECTS="openstack/python-ironicclient $PROJECTS"
-#  export PYTHONUNBUFFERED=true
-#  export DEVSTACK_GATE_TIMEOUT=120
-#  export DEVSTACK_GATE_TEMPEST=1
-#  export DEVSTACK_GATE_POSTGRES=0
-#  export DEVSTACK_GATE_IRONIC=1
-#  export DEVSTACK_GATE_NEUTRON=1
-#  export DEVSTACK_GATE_VIRT_DRIVER=ironic
-#  export DEVSTACK_GATE_IRONIC_DRIVER=pxe_ssh
-#  export DEVSTACK_GATE_IRONIC_BUILD_RAMDISK=1
-#  export TEMPEST_CONCURRENCY=1
-#  export BRANCH_OVERRIDE=default
-#  if [ "$BRANCH_OVERRIDE" != "default" ] ; then
-#      export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
-#  fi
-#  
-#  export IRONICCLIENT_FROM_SOURCE=0
-#  if [ "$IRONICCLIENT_FROM_SOURCE" == "1" ]; then
-#      export DEVSTACK_PROJECT_FROM_GIT="python-ironicclient"
-#  fi
-#  
-#  export IRONIC_LIB_FROM_SOURCE=0
-#  if [ "$IRONIC_LIB_FROM_SOURCE" == "1" ]; then
-#      export DEVSTACK_PROJECT_FROM_GIT="ironic-lib"
-#  fi
-#  
-#  # The IPA ramdisk needs at least 1GB of RAM to run
-#  export DEVSTACK_LOCAL_CONFIG="IRONIC_VM_SPECS_RAM=1024"$'\n'"IRONIC_VM_COUNT=1"
-#  
-#  export DEPLOY_WITH_IPA=0
-#  if [ "$DEPLOY_WITH_IPA" == "1" ] ; then
-#      export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_DEPLOY_DRIVER_ISCSI_WITH_IPA=True"
-#  fi
-#  
-#  export IPXE_ENABLED=0
-#  if [ "$IPXE_ENABLED" == "1" ] ; then
-#      export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_IPXE_ENABLED=True"
-#  fi
-#  
-#  # Allow switching between full tempest and baremetal-only
-#  export DEVSTACK_GATE_TEMPEST_REGEX=baremetal
-#  
-#  # devstack plugin didn't exist until mitaka
-#  if [[ "$ZUUL_BRANCH" != "stable/kilo" && "$ZUUL_BRANCH" != "stable/liberty" ]] ; then
-#      export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin ironic git://git.openstack.org/openstack/ironic"
-#  fi
-#  
-#  cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
-#  ./safe-devstack-vm-gate-wrap.sh 2>&1 | tee ~/output.log
-#  exit
-
-
-# From openstack-infra/project-config/jenkins/jobs/devstack-gate.yaml
 # ***************** Grenade stuff ************************
 # Local mods
 export PROJECTS="openstack/ironic $PROJECTS"
@@ -145,14 +76,17 @@ export PROJECTS="openstack-dev/grenade $PROJECTS"
 export PYTHONUNBUFFERED=true
 export GIT_BASE=https://git.openstack.org/
 export DEVSTACK_GATE_TIMEOUT=120
-export DEVSTACK_GATE_TEMPEST=1
 export DEVSTACK_GATE_GRENADE=pullup
 export DEVSTACK_GATE_IRONIC=1
 export DEVSTACK_GATE_NEUTRON=1
 export DEVSTACK_GATE_VIRT_DRIVER=ironic
 
+
+# export DEVSTACK_GATE_TEMPEST=1
+# export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS="1"
+
+
 # BEGIN: Since stable/mitaka ********************************************************
-#export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS="1"
 export GRENADE_PLUGINRC="enable_grenade_plugin ironic https://git.openstack.org/openstack/ironic"
 
 # END: Since stable/mitaka **********************************************************
@@ -163,7 +97,7 @@ export TEMPEST_CONCURRENCY=1
 
 export DEVSTACK_LOCAL_CONFIG="IRONIC_DEPLOY_DRIVER_ISCSI_WITH_IPA=True"
 
-
+#------------------------ RAMDISK START -------------------------------------
 # Use TinyIPA
 export IRONIC_RAMDISK_TYPE=tinyipa
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_RAM=512"
@@ -181,9 +115,11 @@ export IRONIC_BUILD_DEPLOY_RAMDISK=true
 
 
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_RAMDISK_TYPE=$IRONIC_RAMDISK_TYPE"
+#------------------------ RAMDISK END -------------------------------------
 
-# Need to set IRONIC_IPXE_ENABLED value as default value changed between Mitaka
-# and Newton. Need to have consistent value.
+
+# Need to explicitly set IRONIC_IPXE_ENABLED value as default value changed
+# between Mitaka and Newton. Need to have consistent value.
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_IPXE_ENABLED=True"
 
 
@@ -198,13 +134,20 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"GIT_BASE=https://git.openstack.org/"
 # export BRANCH_OVERRIDE={branch-override}
 export BRANCH_OVERRIDE=default
 if [ "$BRANCH_OVERRIDE" != "default" ] ; then
-export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
+    export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
 fi
 cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
 
+# So the safe-devstack-vm-gate-wrap.sh is likely going to fail. So don't error
+# exit
+set +o errexit
 # Pipe in /dev/null as had strange issues occur if didn't
-./safe-devstack-vm-gate-wrap.sh </dev/null 2>&1 | tee ~/console.txt
-cp ~/console.txt /opt/stack/logs/console.txt
+./safe-devstack-vm-gate-wrap.sh </dev/null
+
+# (jlvillal) I tried to pipe it and the script would just hang at the end :(
+# ./safe-devstack-vm-gate-wrap.sh </dev/null 2>&1 | tee console.txt
+# cp ~/console.txt /opt/stack/logs/console.txt
+
 cd /opt/stack/logs/ && ~/bin/uncompress-gz-files.py > /dev/null
 
 if [ -d /opt/git/pip-cache/ ]
