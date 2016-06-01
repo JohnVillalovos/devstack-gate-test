@@ -9,7 +9,7 @@ dirs_to_create:
     mode: "0755"
     owner: jenkins
     group: jenkins
-  - path: /opt/stack/chache/files
+  - path: /opt/stack/cache/files
     mode: "0755"
     owner: jenkins
     group: jenkins
