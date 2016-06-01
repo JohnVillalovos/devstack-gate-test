@@ -9,6 +9,10 @@ dirs_to_create:
     mode: "0755"
     owner: jenkins
     group: jenkins
+  - path: /opt/stack/chache/files
+    mode: "0755"
+    owner: jenkins
+    group: jenkins
 
 files_to_copy:
   -  src: ironic-grenade.sh
