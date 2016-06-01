@@ -8,52 +8,155 @@ set -o errexit
 xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
+rem_line_func_file() {
+    local frame=0
+    while caller ${frame} ; do
+        ((frame++))
+    done > /dev/null 2>&1
+
+    caller $[frame - 1]
+}
+
+rem_init() {
+    # magic will clone self removing lines that need no patching
+    local called=($(rem_line_func_file))
+    cp -f ${called[2]} ${called[2]}~
+}
+
+rem_term() {
+    local called=($(rem_line_func_file))
+    mv ${called[2]}~ ${called[2]}
+}
+
+
+rem_line() {
+    # rem line where this call was initialized from
+    local called=($(rem_line_func_file))
+    local file=${DIRSTACK[${#DIRSTACK[@]} - 1]}/${called[2]}
+    local line=${called[0]}
+    flock -w 900 ${file}~ \
+    ed ${file}~ <<__EOF_ED
+${line},${line}s/^/#~L~/
+w
+q
+__EOF_ED
+}
+
+# magic
+
+rem_init
+
+
+patch_repo() {
+    local repo=${1:?repo not specified}
+    local remote=${2:?remote not specified}
+    local ref=${3:?ref not specified}
+    local hard=${4}
+
+    pushd ${repo}
+    git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || {
+        [ -n "${hard}" ] && return ${?}
+        git reset
+        # magically remove caller line
+	rem_line
+    }
+    popd
+}
+
+
+patch_() {
+    local remote=${1:?remote not specified}
+    local ref=${2:?ref not specified}
+    local epoch=${3:-both}
+    local hard=${4}
+
+    local project=$(basename $remote)
+    local dir=/opt/stack
+    local repos=()
+    case ${epoch} in
+        old)
+            repos=(${dir}/old/${project});;
+	new)
+            repos=(${dir}/new/${project});;
+        both)
+            repos=(${dir}/old/${project} ${dir}/new/${project});;
+	*)
+            repos=(${dir})
+    esac
+    for repo in ${repos[@]}; do
+        patch_repo ${repo} ${remote} ${ref} ${hard}
+    done
+}
+
+patch_infra() {
+    local project_name=${1:?project name not specified}
+    local ref=${2:?ref not specified}
+    local epoch=${3:-both}
+    local hard=${4}
+
+    patch_ https://git.openstack.org/openstack-infra/${project_name} ${ref} ${epoch} ${hard}
+}
+
+patch_dev() {
+    local project_name=${1:?project name not specified}
+    local ref=${2:?ref not specified}
+    local epoch=${3:-both}
+    local hard=${4}
+
+    patch_ https://git.openstack.org/openstack-dev/${project_name} ${ref} ${epoch} ${hard}
+}
+
+patch_proj() {
+    local project_name=${1:?project name not specified}
+    local ref=${2:?ref not specified}
+    local epoch=${3:-both}
+    local hard=${4}
+
+    patch_ https://git.openstack.org/openstack/${project_name} ${ref} ${epoch} ${hard}
+}
+
+
 # ***** grenade project patches  ****************************************************
 echo "***: Open up firewall for ironic provisioning"
 # https://review.openstack.org/#/c/315268/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
+#~L~(patch_dev grenade refs/changes/68/315268/1) &
 
 echo "***: Enable PS4 for grenade.sh"
 # https://review.openstack.org/#/c/318352/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
+(patch_dev grenade refs/changes/52/318352/1) &
 
 echo "***: Load settings from plugins in upgrade-tempest"
 # https://review.openstack.org/#/c/317993/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/93/317993/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/93/317993/1 && git cherry-pick FETCH_HEAD || git reset)
+(patch_dev grenade refs/changes/93/317993/1) &
 
 
 # ***** tempest project patches  ****************************************************
 echo "****: Fetching the tempest smoke patch"
 # https://review.openstack.org/#/c/315422/
-(cd /opt/stack/new/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
+#~L~#~L~(patch_proj tempest refs/changes/22/315422/9) &
 
 
 # # ***** devstack-gate project patches  ****************************************************
 echo "***: WIP: Add some debugging code (PS4 & xtrace)"
 # https://review.openstack.org/#/c/318227/
-(cd /opt/stack/new/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
-(cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
+(patch_infra devstack-gate refs/changes/27/318227/1 new) &
+(patch_repo /home/jenkins/workspace/testing/devstack-gate https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1) &
 
 
 # ***** devstack project patches  ****************************************************
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
-(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
+(patch_dev devstack refs/changes/32/313132/6 old) &
 
 echo "***: Fix ironic compute_driver name"
 # https://review.openstack.org/#/c/318027/
-(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/27/318027/1 && git cherry-pick FETCH_HEAD || git reset)
+(patch_dev devstack refs/changes/27/318027/1 old) &
 
 
 # ***** nova project patches  ****************************************************
 echo '***: Fix update inventory for multiple providers'
 # https://review.openstack.org/#/c/316031/
-(cd /opt/stack/old/nova; git fetch https://git.openstack.org/openstack/nova refs/changes/31/316031/5 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/nova; git fetch https://git.openstack.org/openstack/nova refs/changes/31/316031/5 && git cherry-pick FETCH_HEAD)
+(patch_proj nova refs/changes/31/316031/5) &
 
 
 # ***** ironic-python-agent project patches  ****************************************************
@@ -64,40 +167,40 @@ echo '***: Fix update inventory for multiple providers'
 # start vsaienko/vdrok patches
 echo '***: Gracefully degrade start_iscsi_target for Mitaka ramdisk'
 # https://review.openstack.org/#/c/319183/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/83/319183/5 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/83/319183/5 new) &
 
 echo '***: Restart n-cpu after Ironic install'
 # https://review.openstack.org/#/c/318479/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/79/318479/8 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/79/318479/8 new) &
 
 echo "***: Move all cleanups to cleanup_ironic"
 # https://review.openstack.org/#/c/318660/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/60/318660/6 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/60/318660/6 new) &
 
 echo 'Keep backward compatibility for openstack port create'
 # https://review.openstack.org/#/c/319232/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/32/319232/3 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/32/319232/3 new) &
 
 echo '***: Make sure create_ovs_taps creates unique taps'
 # https://review.openstack.org/#/c/319101/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/01/319101/4 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/01/319101/4 new) &
 
 echo '***: Revert "Run smoke tests after upgrade"'
 # https://review.openstack.org/#/c/319372/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/72/319372/1 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/72/319372/1 new) &
 ##### end vsaienko/vdrok patches
 
 
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/15/309115/1 old) &
 
 echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
+(patch_proj ironic refs/changes/82/317082/2 new) &
 
 
-
+wait
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
@@ -118,3 +221,6 @@ fi
 
 $xtrace
 $errexit
+
+# magic
+rem_term
