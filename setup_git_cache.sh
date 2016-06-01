@@ -90,5 +90,6 @@ END_REPOS
 
 for repo in $repo_list
 do
-        git clone $git_root/$repo $repo
+        git clone $git_root/$repo $repo &
 done
+wait
