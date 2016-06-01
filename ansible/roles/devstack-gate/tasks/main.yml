@@ -26,6 +26,7 @@
     name: "{{ item }}"
     state: present
   with_items:
+    - ntpdate
     - bridge-utils
     - docker.io                 # Install docker, so proxy settings get setup (if needed)
     - ebtables
