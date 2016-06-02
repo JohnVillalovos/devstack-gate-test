@@ -34,6 +34,8 @@
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
     - python-dev                # Ansible compilation
+    - jq                        # update-projects.sh
+    - httpie                    # update-projects.sh
   sudo: yes
 
 - name: Check if we have a /opt/git/pip-cache/

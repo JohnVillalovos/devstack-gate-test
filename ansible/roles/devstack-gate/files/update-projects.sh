@@ -8,69 +8,29 @@ set -o errexit
 xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
-rem_line_func_file() {
-    local frame=0
-    while caller ${frame} ; do
-        ((frame++))
-    done > /dev/null 2>&1
-
-    caller $[frame - 1]
-}
-
-rem_init() {
-    # magic will clone self removing lines that need no patching
-    local called=($(rem_line_func_file))
-    cp -f ${called[2]} ${called[2]}~
-}
-
-rem_term() {
-    local called=($(rem_line_func_file))
-    mv ${called[2]}~ ${called[2]}
-}
-
-
-rem_line() {
-    # rem line where this call was initialized from
-    local called=($(rem_line_func_file))
-    local file=${DIRSTACK[${#DIRSTACK[@]} - 1]}/${called[2]}
-    local line=${called[0]}
-    flock -w 900 ${file}~ \
-    ed ${file}~ <<__EOF_ED
-${line},${line}s/^/#~L~/
-w
-q
-__EOF_ED
-}
-
-# magic
-
-rem_init
-
-
 patch_repo() {
     local repo=${1:?repo not specified}
     local remote=${2:?remote not specified}
     local ref=${3:?ref not specified}
-    local hard=${4}
+
 
     pushd ${repo}
     flock -w 900 . sudo bash -c \
-        "git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || { git reset ; exit 1 ; }" || {
-            [ -n ${hard} ] && return $?
-            # magically remove caller line
-	    rem_line
-        }
+        "git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || git reset"
     popd
 }
 
 
 patch_() {
-    local remote=${1:?remote not specified}
-    local ref=${2:?ref not specified}
-    local epoch=${3:-both}
-    local hard=${4}
+    local number=${1:?number not specified}
+    local epoch=${2:-both}
 
-    local project=$(basename $remote)
+    local details=()
+    # nothing to do if review returns 1
+    details=($(review ${number})) || return 0
+    local project=$(basename ${details[0]})
+    local remote=${details[1]}
+    local ref=${details[2]}
     local dir=/opt/stack
     local repos=()
     case ${epoch} in
@@ -84,79 +44,63 @@ patch_() {
             repos=(${dir})
     esac
     for repo in ${repos[@]}; do
-        patch_repo ${repo} ${remote} ${ref} ${hard}
+        patch_repo ${repo} ${remote} ${ref}
     done
 }
 
-patch_infra() {
-    local project_name=${1:?project name not specified}
-    local ref=${2:?ref not specified}
-    local epoch=${3:-both}
-    local hard=${4}
+review() {
+    # echo project url ref to cherry pick
+    # return 1 if already merged
+    local number=${1:?no number specified}
+    local result=()
 
-    patch_ https://git.openstack.org/openstack-infra/${project_name} ${ref} ${epoch} ${hard}
-}
+    result=($(http https://review.openstack.org/changes/${number}/revisions/current/review | tail -n+2 | jq -er 'if .status == "NEW" then ({project} + .revisions[.current_revision].fetch["anonymous http"])["project", "url","ref"] else false end')) || return ${?}
+    echo ${result[@]}
 
-patch_dev() {
-    local project_name=${1:?project name not specified}
-    local ref=${2:?ref not specified}
-    local epoch=${3:-both}
-    local hard=${4}
-
-    patch_ https://git.openstack.org/openstack-dev/${project_name} ${ref} ${epoch} ${hard}
-}
-
-patch_proj() {
-    local project_name=${1:?project name not specified}
-    local ref=${2:?ref not specified}
-    local epoch=${3:-both}
-    local hard=${4}
-
-    patch_ https://git.openstack.org/openstack/${project_name} ${ref} ${epoch} ${hard}
 }
 
 
 # ***** grenade project patches  ****************************************************
 echo "***: Open up firewall for ironic provisioning"
 # https://review.openstack.org/#/c/315268/
-#~L~(patch_dev grenade refs/changes/68/315268/1) &
+(patch_ 315268)
 
 echo "***: Enable PS4 for grenade.sh"
 # https://review.openstack.org/#/c/318352/
-(patch_dev grenade refs/changes/52/318352/1) &
+(patch_ 318352)
 
 echo "***: Load settings from plugins in upgrade-tempest"
 # https://review.openstack.org/#/c/317993/
-(patch_dev grenade refs/changes/93/317993/1) &
-
+(patch_ 317993)
 
 # ***** tempest project patches  ****************************************************
 echo "****: Fetching the tempest smoke patch"
 # https://review.openstack.org/#/c/315422/
-#~L~#~L~(patch_proj tempest refs/changes/22/315422/9) &
+(patch_ 315422)
 
 
 # # ***** devstack-gate project patches  ****************************************************
 echo "***: WIP: Add some debugging code (PS4 & xtrace)"
 # https://review.openstack.org/#/c/318227/
-(patch_infra devstack-gate refs/changes/27/318227/1 new) &
-(patch_repo /home/jenkins/workspace/testing/devstack-gate https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1) &
-
+(patch_ 318227 new)
+details=($(review 318227)) && {
+    (patch_repo /home/jenkins/workspace/testing/devstack-gate ${details[1]} ${details[2]})
+}
 
 # ***** devstack project patches  ****************************************************
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
-(patch_dev devstack refs/changes/32/313132/6 old) &
+(patch_ 313132 old)
 
 echo "***: Fix ironic compute_driver name"
 # https://review.openstack.org/#/c/318027/
-(patch_dev devstack refs/changes/27/318027/1 old) &
+(patch_ 318027 old)
 
 
 # ***** nova project patches  ****************************************************
 echo '***: Fix update inventory for multiple providers'
 # https://review.openstack.org/#/c/316031/
-(patch_proj nova refs/changes/31/316031/5) &
+(patch_ 316031)
 
 
 # ***** ironic-python-agent project patches  ****************************************************
@@ -167,41 +111,41 @@ echo '***: Fix update inventory for multiple providers'
 # start vsaienko/vdrok patches
 echo '***: Gracefully degrade start_iscsi_target for Mitaka ramdisk'
 # https://review.openstack.org/#/c/319183/
-(patch_proj ironic refs/changes/83/319183/5 new) &
+(patch_ 319183 new)
 
 echo '***: Restart n-cpu after Ironic install'
 # https://review.openstack.org/#/c/318479/
-(patch_proj ironic refs/changes/79/318479/8 new) &
+(patch_ 318479 new)
 
 echo "***: Move all cleanups to cleanup_ironic"
 # https://review.openstack.org/#/c/318660/
-(patch_proj ironic refs/changes/60/318660/6 new) &
+(patch_ 318660 new)
 
 echo 'Keep backward compatibility for openstack port create'
 # https://review.openstack.org/#/c/319232/
-(patch_proj ironic refs/changes/32/319232/3 new) &
+(patch_ 319232 new)
 
 echo '***: Make sure create_ovs_taps creates unique taps'
 # https://review.openstack.org/#/c/319101/
-(patch_proj ironic refs/changes/01/319101/4 new) &
+(patch_ 319101 new)
 
 echo '***: Revert "Run smoke tests after upgrade"'
 # https://review.openstack.org/#/c/319372/
-(patch_proj ironic refs/changes/72/319372/1 new) &
+(patch_ 319372 new)
 ##### end vsaienko/vdrok patches
 
 
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
-(patch_proj ironic refs/changes/15/309115/1 old) &
+(patch_ 309115 old)
 
 echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
-(patch_proj ironic refs/changes/82/317082/2 new) &
+(patch_ 317082 new)
 
 echo "*** Allow Devstack on Xenial in Mitaka"
 # https://review.openstack.org/#/c/324295/1
-(patch_dev devstack refs/changes/95/324295/1 old) &
+(patch_ 324295 old)
 
 wait
 
@@ -225,5 +169,3 @@ fi
 $xtrace
 $errexit
 
-# magic
-rem_term
