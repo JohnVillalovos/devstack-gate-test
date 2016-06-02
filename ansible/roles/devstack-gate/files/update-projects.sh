@@ -199,6 +199,9 @@ echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
 (patch_proj ironic refs/changes/82/317082/2 new) &
 
+echo "*** Allow Devstack on Xenial in Mitaka"
+# https://review.openstack.org/#/c/324295/1
+(patch_dev devstack refs/changes/95/324295/1 old) &
 
 wait
 
