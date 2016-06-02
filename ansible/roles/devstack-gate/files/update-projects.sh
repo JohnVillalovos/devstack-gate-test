@@ -54,12 +54,12 @@ patch_repo() {
     local hard=${4}
 
     pushd ${repo}
-    git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || {
-        [ -n "${hard}" ] && return ${?}
-        git reset
-        # magically remove caller line
-	rem_line
-    }
+    flock -w 900 . sudo bash -c \
+        "git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || { git reset ; exit 1 ; }" || {
+            [ -n ${hard} ] && return $?
+            # magically remove caller line
+	    rem_line
+        }
     popd
 }
 
