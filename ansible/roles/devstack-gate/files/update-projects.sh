@@ -69,6 +69,7 @@ echo "***: Enable PS4 for grenade.sh"
 # https://review.openstack.org/#/c/318352/
 (patch_ 318352)
 
+
 echo "***: Load settings from plugins in upgrade-tempest"
 # https://review.openstack.org/#/c/317993/
 (patch_ 317993)
@@ -80,6 +81,14 @@ echo "****: Fetching the tempest smoke patch"
 
 
 # # ***** devstack-gate project patches  ****************************************************
+# openstack-infra/devstack-gate: Allow to pass OS_TEST_TIMEOUT for grenade job
+# https://review.openstack.org/#/c/316662/
+(patch_ 316662)
+
+# openstack-infra/devstack-gate: Allow to set Ironic provision timeout from the job
+# https://review.openstack.org/#/c/315496/
+(patch_ 315496)
+
 echo "***: WIP: Add some debugging code (PS4 & xtrace)"
 # https://review.openstack.org/#/c/318227/
 (patch_ 318227 new)
@@ -95,7 +104,6 @@ echo "***: Export the 'short_source' function"
 echo "***: Fix ironic compute_driver name"
 # https://review.openstack.org/#/c/318027/
 (patch_ 318027 old)
-
 
 # ***** nova project patches  ****************************************************
 echo '***: Fix update inventory for multiple providers'
@@ -147,7 +155,13 @@ echo "*** Allow Devstack on Xenial in Mitaka"
 # https://review.openstack.org/#/c/324295/1
 (patch_ 324295 old)
 
-wait
+
+# *** ironic python client
+# openstack/python-ironicclient: Catch RetriableConnectionFailures from KAuth and retry
+# https://review.openstack.org/323851
+# if this works, won't need to do extra reboots of nova compute during upgrade (so we'd undo the code that is doing the reboots)
+(patch_ 323851 new)
+
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
