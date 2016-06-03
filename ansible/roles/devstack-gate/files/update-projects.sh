@@ -15,7 +15,7 @@ patch_repo() {
 
 
     pushd ${repo}
-    flock -w 900 . sudo bash -c \
+    flock -w 900 . bash -c \
         "git fetch ${remote} ${ref} && git cherry-pick --keep-redundant-commits FETCH_HEAD || git reset"
     popd
 }
@@ -28,6 +28,7 @@ patch_() {
     local details=()
     # nothing to do if review returns 1
     details=($(review ${number})) || return 0
+
     local project=$(basename ${details[0]})
     local remote=${details[1]}
     local ref=${details[2]}
@@ -53,10 +54,9 @@ review() {
     # return 1 if already merged
     local number=${1:?no number specified}
     local result=()
-
-    result=($(http https://review.openstack.org/changes/${number}/revisions/current/review | tail -n+2 | jq -er 'if .status == "NEW" then ({project} + .revisions[.current_revision].fetch["anonymous http"])["project", "url","ref"] else false end')) || return ${?}
+    result=($(http https://review.openstack.org/changes/${number}/revisions/current/review | tail -n+2 | jq -er 'debug | if .status == "NEW" then ({project} + .revisions[.current_revision].fetch["anonymous http"])["project", "url","ref"] else false end | debug')) || return ${?}
+    [ ${#result[@]} -eq 3 ] || return 1
     echo ${result[@]}
-
 }
 
 
