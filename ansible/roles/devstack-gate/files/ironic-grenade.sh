@@ -47,7 +47,7 @@ then
 fi
 
 cd $WORKSPACE
-[ -d testing/devstack-gate ] || git clone --depth 1 $REPO_URL/openstack-infra/devstack-gate
+[ -d devstack-gate ] || git clone --depth 1 $REPO_URL/openstack-infra/devstack-gate
 
 # # Cherry pick our patch: Send DEVSTACK_GATE_TEMPEST_REGEX to grenade jobs
 # (cd devstack-gate; git fetch https://review.openstack.org/openstack-infra/devstack-gate refs/changes/44/241044/3 && git cherry-pick FETCH_HEAD)
