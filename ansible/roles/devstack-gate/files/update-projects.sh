@@ -158,6 +158,9 @@ echo "*** Allow Devstack on Xenial in Mitaka"
 echo "*** Remove neutron stuff from devstack deb packages"
 # https://review.openstack.org/#/c/325346/
 (patch_ 325346)
+# cherry-picked to stable/mitaka
+# https://review.ope nstack.org/#/c/326250/
+(patch_ 326250 old)
 
 # *** ironic python client
 # openstack/python-ironicclient: Catch RetriableConnectionFailures from KAuth and retry
