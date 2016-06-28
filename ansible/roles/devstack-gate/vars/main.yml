@@ -20,6 +20,16 @@ files_to_copy:
      mode: "0755"
      owner: jenkins
      group: jenkins
+  -  src: inspector-grenade.sh
+     dest: "~jenkins/inspector-grenade.sh"
+     mode: "0755"
+     owner: jenkins
+     group: jenkins
+  -  src: patch_.sh
+     dest: "~jenkins/patch_.sh"
+     mode: "0644"
+     owner: jenkins
+     group: jenkins
   -  src: update-projects.sh
      dest: "~jenkins/update-projects.sh"
      mode: "0644"
