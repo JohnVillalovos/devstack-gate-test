@@ -127,9 +127,13 @@ echo applying inspector patch for grenade
 echo applying Setsid to fix "old" screen_it--screen_stop chain
 (patch_ 333155)
 
-# *** fix grenade/inc/upgrade:is_service_running
-echo applying Allow service running state check through pgid
-(patch_ 334564)
+# *** missing install_tempest_plugins
+echo Add missing install_tempest_plugins call to upgrade-tempest
+(patch_  337372)
+
+# *** inspector smoke tests
+echo Add a simple smoke test to be run in the grenade gate
+(patch_ 336532)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
