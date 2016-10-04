@@ -17,20 +17,20 @@ fi
 
 export LANG=en_US.utf8
 
-echo "Install pip..."
-wget https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-
 echo "Update apt-get database..."
 apt-get update
 
-echo "Install required packages..."
 # Ansible needed packages
 PACKAGES="python-dev libffi-dev libssl-dev"
 PACKAGES="nfs-kernel-server ${PACKAGES}"
-PACKAGES="git ${PACKAGES}"
+PACKAGES="git python gcc ${PACKAGES}"
 
+echo "Install required packages..."
 apt-get install --assume-yes ${PACKAGES}
+
+echo "Install pip..."
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
 
 echo "Install ansible, at least 2.0 ..."
 pip install ansible
