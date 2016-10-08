@@ -26,6 +26,7 @@
     name: "{{ item }}"
     state: present
   with_items:
+    - ntpdate
     - bridge-utils
     - docker.io                 # Install docker, so proxy settings get setup (if needed)
     - ebtables
@@ -33,7 +34,18 @@
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
     - python-dev                # Ansible compilation
+    - automake                  # compile jq
+    - libtool                   # compile jq
+    - bison                     # compile jq
   sudo: yes
+
+- name: Install up-to-date Ipxe
+  apt: deb=http://archive.ubuntu.com/ubuntu/pool/main/i/ipxe/ipxe_1.0.0+git-20150424.a25a16d-1ubuntu2_all.deb
+       state=present
+
+- name: Install up-to-date Qemu Ipxe
+  apt: deb=http://archive.ubuntu.com/ubuntu/pool/main/i/ipxe/ipxe-qemu_1.0.0+git-20150424.a25a16d-1ubuntu2_all.deb
+       state=present
 
 - name: Check if we have a /opt/git/pip-cache/
   stat: path="/opt/git/pip-cache"
@@ -145,3 +157,52 @@
   with_items:
     - jenkins
     - root
+
+- name: fetch jq
+  git: repo=https://github.com/stedolan/jq.git
+       dest=/usr/local/src/jq
+  tags: jq
+
+- name: autoreconfigure jq
+  shell: autoreconf -i
+         chdir=/usr/local/src/jq
+         creates=configure
+  tags: jq
+
+- name: configure jq
+  shell: ./configure
+         chdir=/usr/local/src/jq
+         creates=config.status
+  tags: jq
+
+- name: make install jq
+  shell: make install
+         chdir=/usr/local/src/jq
+  tags: jq
+
+- name: pip install httpie
+  pip: name=httpie
+       state=latest
+  tags: httpie
+
+- name: install unbound
+  # Infra's default setup  workarounding http://www.stgraber.org/2012/02/24/dns-in-ubuntu-12-04/ by accident
+  apt: name=unbound state=latest
+
+- name: configure unbound
+  copy: src=unbound.conf
+        dest=/etc/unbound/
+        mode="0644"
+        owner="root"
+        group="root"
+
+- name: enable unbound
+  service: name=unbound state=restarted enabled=yes
+
+- name: install dnsmasq
+  # ... in advance to workaround later issues with ubuntu using it as local resolver
+  apt: name=dnsmasq state=latest
+
+- name: disable dnsmasq
+  # ... to avoid port races with unbound
+  service: name=dnsmasq state=stopped enabled=no

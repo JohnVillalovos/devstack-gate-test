@@ -18,6 +18,9 @@ function short_source {
 export -f short_source
 export PS4='+ $(short_source):   '
 
+TOPDIR=$(cd $(dirname $0) && pwd)
+source $TOPDIR/patch_.sh
+
 export LANG=en_US.utf8
 export REPO_URL=https://git.openstack.org
 export ZUUL_URL=/home/jenkins/cache-workspace
@@ -26,8 +29,10 @@ export ZUUL_REF=HEAD
 export WORKSPACE=/home/jenkins/workspace/testing
 mkdir -p $WORKSPACE
 
-export ZUUL_PROJECT=openstack/ironic
+export ZUUL_PROJECT=openstack/ironic-inspector
 export ZUUL_BRANCH=master
+
+export ZUUL_REF=$(review 327667 | cut -d\  -f3,3 ||:)
 
 # git clone $REPO_URL/$ZUUL_PROJECT $ZUUL_URL/$ZUUL_PROJECT \
 #     && cd $ZUUL_URL/$ZUUL_PROJECT \
@@ -72,14 +77,20 @@ export PROJECTS="openstack/ironic $PROJECTS"
 export PROJECTS="openstack/ironic-lib $PROJECTS"
 export PROJECTS="openstack/ironic-python-agent $PROJECTS"
 export PROJECTS="openstack/python-ironicclient $PROJECTS"
+export PROJECTS="openstack/ironic-inspector $PROJECTS"
+export PROJECTS="openstack/python-ironic-inspector-client $PROJECTS"
 export PROJECTS="openstack-dev/grenade $PROJECTS"
 export PYTHONUNBUFFERED=true
-export GIT_BASE=https://git.openstack.org/
+export GIT_BASE=http://git.openstack.org/
+#export GIT_BASE=http://github.com/
 export DEVSTACK_GATE_TIMEOUT=120
 export DEVSTACK_GATE_GRENADE=pullup
 export DEVSTACK_GATE_IRONIC=1
 export DEVSTACK_GATE_NEUTRON=1
 export DEVSTACK_GATE_VIRT_DRIVER=ironic
+export DEVSTACK_GATE_OS_TEST_TIMEOUT=2400
+export DEVSTACK_GATE_TEMPEST_BAREMETAL_BUILD_TIMEOUT=1200
+export TARGET_RUN_SMOKE=true
 
 
 # export DEVSTACK_GATE_TEMPEST=1
@@ -87,7 +98,8 @@ export DEVSTACK_GATE_VIRT_DRIVER=ironic
 
 
 # BEGIN: Since stable/mitaka ********************************************************
-export GRENADE_PLUGINRC="enable_grenade_plugin ironic https://git.openstack.org/openstack/ironic"
+export GRENADE_PLUGINRC+=$'\n'"enable_grenade_plugin ironic http://git.openstack.org/openstack/ironic"
+export GRENADE_PLUGINRC+=$'\n'"enable_grenade_plugin ironic-inspector http://git.openstack.org/openstack/ironic-inspector $ZUUL_REF"
 
 # END: Since stable/mitaka **********************************************************
 
@@ -95,13 +107,12 @@ export GRENADE_PLUGINRC="enable_grenade_plugin ironic https://git.openstack.org/
 export TEMPEST_CONCURRENCY=1
 
 
-export DEVSTACK_LOCAL_CONFIG="IRONIC_DEPLOY_DRIVER_ISCSI_WITH_IPA=True"
 
 #------------------------ RAMDISK START -------------------------------------
 # Use TinyIPA
 export IRONIC_RAMDISK_TYPE=tinyipa
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_RAM=512"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_COUNT=3"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_RAM=384"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_COUNT=5"
 # Bug in stable/mitaka. Make sure it is true to use tinyipa, though that is the
 # default.
 export IRONIC_BUILD_DEPLOY_RAMDISK=true
@@ -111,7 +122,7 @@ export IRONIC_BUILD_DEPLOY_RAMDISK=true
 #export IRONIC_RAMDISK_TYPE=coreos
 # The CoreOS IPA ramdisk needs at least 1GB of RAM to run
 #export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_SPECS_RAM=1024"
-#export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_COUNT=1"
+#export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_VM_COUNT=2"
 
 
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_RAMDISK_TYPE=$IRONIC_RAMDISK_TYPE"
@@ -121,6 +132,9 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_RAMDISK_TYPE=$IRONIC_RAMDISK_TYPE"
 # Need to explicitly set IRONIC_IPXE_ENABLED value as default value changed
 # between Mitaka and Newton. Need to have consistent value.
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_IPXE_ENABLED=True"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_DEPLOY_DRIVER_ISCSI_WITH_IPA=True"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_INSPECTOR_RAMDISK_ELEMENT=ironic-agent"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_INSPECTOR_MANAGE_FIREWALL=True"
 
 
 # export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_HW_NODE_DISK=2"
@@ -128,7 +142,8 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"IRONIC_IPXE_ENABLED=True"
 
 # JLV set GIT_BASE since those devstack people refuse to change to a sensible
 # default and insist on using 'git://' :(  Yay for insecurity!
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"GIT_BASE=https://git.openstack.org/"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"GIT_BASE=$GIT_BASE"
+
 
 
 # export BRANCH_OVERRIDE={branch-override}

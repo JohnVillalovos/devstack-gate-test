@@ -8,52 +8,58 @@ set -o errexit
 xtrace=$(set +o | grep xtrace)
 set -o xtrace
 
+PATCH_DIR=$(cd $(dirname $DEVSTACK_GATE_SETTINGS) && pwd)
+source $PATCH_DIR/patch_.sh
+
 # ***** grenade project patches  ****************************************************
 echo "***: Open up firewall for ironic provisioning"
 # https://review.openstack.org/#/c/315268/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/68/315268/1 && git cherry-pick FETCH_HEAD || git reset)
+(patch_ 315268)
 
 echo "***: Enable PS4 for grenade.sh"
 # https://review.openstack.org/#/c/318352/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/52/318352/1 && git cherry-pick FETCH_HEAD || git reset)
+(patch_ 318352)
+
 
 echo "***: Load settings from plugins in upgrade-tempest"
 # https://review.openstack.org/#/c/317993/
-(cd /opt/stack/new/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/93/317993/1 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/grenade; git fetch https://git.openstack.org/openstack-dev/grenade refs/changes/93/317993/1 && git cherry-pick FETCH_HEAD || git reset)
-
+(patch_ 317993)
 
 # ***** tempest project patches  ****************************************************
 echo "****: Fetching the tempest smoke patch"
 # https://review.openstack.org/#/c/315422/
-(cd /opt/stack/new/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
-(cd /opt/stack/old/tempest; git fetch https://git.openstack.org/openstack/tempest refs/changes/22/315422/9 && git cherry-pick FETCH_HEAD || git reset)
+(patch_ 315422)
 
 
 # # ***** devstack-gate project patches  ****************************************************
+# openstack-infra/devstack-gate: Allow to pass OS_TEST_TIMEOUT for grenade job
+# https://review.openstack.org/#/c/316662/
+(patch_ 316662)
+
+# openstack-infra/devstack-gate: Allow to set Ironic provision timeout from the job
+# https://review.openstack.org/#/c/315496/
+(patch_ 315496)
+
 echo "***: WIP: Add some debugging code (PS4 & xtrace)"
 # https://review.openstack.org/#/c/318227/
-(cd /opt/stack/new/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
-(cd /home/jenkins/workspace/testing/devstack-gate; git fetch https://git.openstack.org/openstack-infra/devstack-gate refs/changes/27/318227/1 && git cherry-pick FETCH_HEAD)
-
+(patch_ 318227 new)
+details=($(review 318227)) && {
+    (patch_repo /home/jenkins/workspace/testing/devstack-gate ${details[1]} ${details[2]})
+}
 
 # ***** devstack project patches  ****************************************************
 echo "***: Export the 'short_source' function"
 # https://review.openstack.org/#/c/313132/
-(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/32/313132/6 && git cherry-pick FETCH_HEAD)
+(patch_ 313132 old)
 
 echo "***: Fix ironic compute_driver name"
 # https://review.openstack.org/#/c/318027/
-(cd /opt/stack/old/devstack; git fetch https://git.openstack.org/openstack-dev/devstack refs/changes/27/318027/1 && git cherry-pick FETCH_HEAD || git reset)
-
+(patch_ 318027 old)
 
 # ***** nova project patches  ****************************************************
 echo '***: Fix update inventory for multiple providers'
 # https://review.openstack.org/#/c/316031/
-(cd /opt/stack/old/nova; git fetch https://git.openstack.org/openstack/nova refs/changes/31/316031/5 && git cherry-pick FETCH_HEAD)
-(cd /opt/stack/new/nova; git fetch https://git.openstack.org/openstack/nova refs/changes/31/316031/5 && git cherry-pick FETCH_HEAD)
+(patch_ 316031)
 
 
 # ***** ironic-python-agent project patches  ****************************************************
@@ -64,40 +70,70 @@ echo '***: Fix update inventory for multiple providers'
 # start vsaienko/vdrok patches
 echo '***: Gracefully degrade start_iscsi_target for Mitaka ramdisk'
 # https://review.openstack.org/#/c/319183/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/83/319183/5 && git cherry-pick FETCH_HEAD)
+(patch_ 319183 new)
 
 echo '***: Restart n-cpu after Ironic install'
 # https://review.openstack.org/#/c/318479/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/79/318479/8 && git cherry-pick FETCH_HEAD)
+(patch_ 318479 new)
 
 echo "***: Move all cleanups to cleanup_ironic"
 # https://review.openstack.org/#/c/318660/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/60/318660/6 && git cherry-pick FETCH_HEAD)
+(patch_ 318660 new)
 
 echo 'Keep backward compatibility for openstack port create'
 # https://review.openstack.org/#/c/319232/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/32/319232/3 && git cherry-pick FETCH_HEAD)
+(patch_ 319232 new)
 
 echo '***: Make sure create_ovs_taps creates unique taps'
 # https://review.openstack.org/#/c/319101/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/01/319101/4 && git cherry-pick FETCH_HEAD)
+(patch_ 319101 new)
 
 echo '***: Revert "Run smoke tests after upgrade"'
 # https://review.openstack.org/#/c/319372/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/72/319372/1 && git cherry-pick FETCH_HEAD)
+(patch_ 319372 new)
 ##### end vsaienko/vdrok patches
 
 
 echo "***: Fetching the Ironic disable cleaning patch"
 # https://review.openstack.org/#/c/309115/
-(cd /opt/stack/old/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/15/309115/1 && git cherry-pick FETCH_HEAD)
+(patch_ 309115 old)
 
 echo "***: Update resources subnet CIDR"
 # https://review.openstack.org/#/c/317082/
-(cd /opt/stack/new/ironic; git fetch https://git.openstack.org/openstack/ironic refs/changes/82/317082/2 && git cherry-pick FETCH_HEAD)
+(patch_ 317082 new)
 
+echo "*** Allow Devstack on Xenial in Mitaka"
+# https://review.openstack.org/#/c/324295/1
+(patch_ 324295 old)
 
+echo "*** Remove neutron stuff from devstack deb packages"
+# https://review.openstack.org/#/c/325346/
+(patch_ 325346)
+# cherry-picked to stable/mitaka
+# https://review.ope nstack.org/#/c/326250/
+(patch_ 326250 old)
 
+# *** ironic python client
+# openstack/python-ironicclient: Catch RetriableConnectionFailures from KAuth and retry
+# https://review.openstack.org/323851
+# if this works, won't need to do extra reboots of nova compute during upgrade (so we'd undo the code that is doing the reboots)
+(patch_ 323851 new)
+
+# *** inspector patch for grenade
+echo applying inspector patch for grenade
+(patch_ 327667)
+
+# *** fix devstack screen_start--screen_stop for non-screen cases
+echo applying Setsid to fix "old" screen_it--screen_stop chain
+(patch_ 333155)
+
+# *** missing install_tempest_plugins
+echo Add missing install_tempest_plugins call to upgrade-tempest
+(patch_  337372)
+
+# *** inspector smoke tests
+echo Add a simple smoke test to be run in the grenade gate
+(patch_ 336532)
 
 # Prep the pip cache for the stack user, which is owned by the 'jenkins' user at this point
 if [ -d /opt/git/pip-cache/ ]
@@ -118,3 +154,4 @@ fi
 
 $xtrace
 $errexit
+
