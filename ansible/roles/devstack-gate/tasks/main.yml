@@ -26,10 +26,12 @@
     name: "{{ item }}"
     state: present
   with_items:
+    - aptitude                  # Useful program
     - bridge-utils
     - docker.io                 # Install docker, so proxy settings get setup (if needed)
     - ebtables
     - gdb                       # To support debugging
+    - jq                        # For JSON parsing
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
     - python-dev                # Ansible compilation
