@@ -1,0 +1,7 @@
+---
+primary_ip: 10.1.88.110
+primary_ipv6: "fe80::f447:c3ff:fe70:8dfc"
+subnode_ip: 10.1.162.216
+subnode_ipv6: "2001:4800:1ae1:18:f816:3eff:feed:865e"
+node_ip: 10.1.88.110
+node_role: primary
