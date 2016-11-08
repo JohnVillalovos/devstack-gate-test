@@ -1,0 +1,4 @@
+NODEPOOL_PROVIDER='osic-cloud1-s3500'
+NODEPOOL_CLOUD='osic-cloud1'
+NODEPOOL_REGION='RegionOne'
+NODEPOOL_AZ=''
