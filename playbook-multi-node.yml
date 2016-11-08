@@ -1,0 +1,108 @@
+---
+- hosts: all
+  vars:
+    - build_user: jenkins
+    - build_group: jenkins
+  tasks:
+  - name: Erase /etc/nodepool/ directory
+    file: path=/etc/nodepool state=absent
+    become: yes
+  - name: Create /etc/nodepool/ directory
+    file:
+      path: /etc/nodepool
+      state: directory
+      owner: "{{build_user}}"
+      group: "{{build_user}}"
+    become: yes
+  - name: Create /etc/nodepool/primary_node IPv6 address file
+    copy:
+      content: "{{primary_ipv6}}\n"
+      dest: /etc/nodepool/primary_node
+    become: yes
+    become_user: jenkins
+  - name: Create /etc/nodepool/primary_node_private IP address file
+    copy:
+      content: "{{primary_ip}}\n"
+      dest: /etc/nodepool/primary_node_private
+    become: yes
+    become_user: jenkins
+  - name: Create /etc/nodepool/node_private IP address file
+    copy:
+      content: "{{node_ip}}\n"
+      dest: /etc/nodepool/node_private
+    become: yes
+    become_user: jenkins
+  - name: Create /etc/nodepool/subnode_nodes_private IP address file
+    copy:
+      content: "{{subnode_ip}}\n"
+      dest: /etc/nodepool/sub_nodes_private
+    become: yes
+    become_user: jenkins
+  - name: Create /etc/nodepool/sub_nodes IPv6 address file
+    copy:
+      content: "{{subnode_ipv6}}\n"
+      dest: /etc/nodepool/sub_nodes
+    become: yes
+    become_user: jenkins
+  - name: Copy provider file to /etc/nodepool/provider
+    copy:
+      src: provider.txt
+      dest: /etc/nodepool/provider
+    become: yes
+    become_user: jenkins
+  - name: Copy SSH keys to /etc/nodepool/
+    copy:
+      src: "{{item}}"
+      dest: /etc/nodepool/
+    with_fileglob:
+       - "~/.ssh/id_rsa*"
+    become: yes
+    become_user: jenkins
+
+  - name: Do ip6tables for IPv6 addresses
+    command: ip6tables -I openstack-INPUT 1 -s "{{item}}" -j ACCEPT
+    with_items:
+      - "{{primary_ipv6}}"
+      - "{{subnode_ipv6}}"
+    become: yes
+
+  - name: Do iptables for IPv4 addresses
+    command: iptables -I openstack-INPUT 1 -s "{{item}}" -j ACCEPT
+    with_items:
+      - "{{primary_ip}}"
+      - "{{subnode_ip}}"
+    become: yes
+
+
+# SSH keys
+  - name: Create ~jenkins/.ssh/ directory
+    file:
+      path: ~jenkins/.ssh/
+      state: directory
+      owner: jenkins
+      group: jenkins
+      mode: 0700
+    become: yes
+
+  - name: Copy id_rsa file to ~jenkins/.ssh/ directory
+    copy:
+      src: ~/.ssh/id_rsa
+      dest: ~jenkins/.ssh/
+      mode: 0600
+    become: yes
+    become_user: jenkins
+
+  - name: Copy id_rsa.pub file to ~jenkins/id_rsa.pub
+    copy:
+      src: /home/ubuntu/.ssh/id_rsa.pub
+      dest: ~jenkins/.ssh/
+      mode: 0644
+    become: yes
+    become_user: jenkins
+
+  - name: Add id_rsa.pub to ~jenkins/authorized_keys
+    authorized_key: 
+      user: jenkins
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    become: yes
+    become_user: jenkins
