@@ -9,12 +9,14 @@ set -o errexit
 
 
 # Must be root, and not using 'sudo ./vm-setup.sh'
-if [[ $EUID -ne 0 ]] || [[ -n ${SUDO_COMMAND:-} ]]; then
-    echo "Must be root to run this script"
-    echo "Please don't use 'sudo ./vm-setup.sh' as things can go wrong :("
-    echo ""
-    echo "Recommend to do: sudo su -"
-    exit 1
+if [[ "${1:-}" != "--force" ]]; then
+    if [[ $EUID -ne 0 ]] || [[ -n ${SUDO_COMMAND:-} ]]; then
+        echo "Must be root to run this script"
+        echo "Please don't use 'sudo ./vm-setup.sh' as things can go wrong :("
+        echo ""
+        echo "Recommend to do: sudo su -"
+        exit 1
+    fi
 fi
 
 set -o xtrace
