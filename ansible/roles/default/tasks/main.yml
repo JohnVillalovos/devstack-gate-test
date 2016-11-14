@@ -17,6 +17,7 @@
     - git                   # We need to 'git clone' stuff
     - htop                  # A nicer looking top
     - nfs-common            # For sharing the directory between the host and the vagrant guest
+    - ntpdate               # This is used, but not installed.
     - traceroute            # This is used, but not installed.
     - vim                   # We need to edit stuff at times
   sudo: yes
