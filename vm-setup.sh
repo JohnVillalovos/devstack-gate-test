@@ -26,9 +26,9 @@ echo "Update apt-get database..."
 apt-get update
 
 # Ansible needed packages
-PACKAGES="python-dev libffi-dev libssl-dev"
+PACKAGES="python-dev python3-dev libffi-dev libssl-dev"
 PACKAGES="nfs-kernel-server ${PACKAGES}"
-PACKAGES="git python gcc ${PACKAGES}"
+PACKAGES="git python python3 gcc ${PACKAGES}"
 
 echo "Install required packages..."
 apt-get install --assume-yes ${PACKAGES}
@@ -36,6 +36,7 @@ apt-get install --assume-yes ${PACKAGES}
 echo "Install pip..."
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
+python3 get-pip.py
 
 echo "Install ansible, at least 2.0 ..."
 pip install ansible
