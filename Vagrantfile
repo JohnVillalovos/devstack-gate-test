@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
 # Vagrant plugins that need to be installed. Versions will vary.
 # vagrant-libvirt (0.0.32)  - if using libvirt
@@ -12,7 +14,7 @@ use_proxy = !((ENV['http_proxy'].nil? || ENV['http_proxy'].empty?) &&
               (ENV['https_proxy'].nil? || ENV['https_proxy'].empty?))
 
 
-Vagrant.configure(2) do |config|
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Configure plugins, using the proxy plugin
   # https://github.com/tmatilai/vagrant-proxyconf/
   if use_proxy
@@ -28,6 +30,10 @@ Vagrant.configure(2) do |config|
   # Use NFS synced folder, make sure have installed NFS server on host
   config.vm.synced_folder "/opt/git", "/opt/git", type: "nfs"
 
+  # Make the VM be named 'devstack' instead of 'default'
+  config.vm.define "devstack" do |devstack|
+  end
+
   # config.vm.network :public_network
 
   # This check does NOT work if they use '--provider' :(
@@ -37,9 +43,9 @@ Vagrant.configure(2) do |config|
 
       puts("Assuming provider is libvirt...")
 
-      # Assumption here is have converted the 'ubuntu/trusty64' Virtualbox box to a
+      # Assumption here is have converted the 'ubuntu/xenial64' Virtualbox box to a
       # libvirt format using 'vagrant mutate' (which needs to be installed) and
-      # named the converted box 'trusty64'
+      # named the converted box 'xenial64'
       # https://github.com/pradels/vagrant-libvirt
       # https://github.com/sciurus/vagrant-mutate
 
@@ -51,7 +57,7 @@ Vagrant.configure(2) do |config|
             raise 'vagrant-mutate (https://github.com/sciurus/vagrant-mutate) is not installed'
       end
 
-      config.vm.box = "trusty64"
+      config.vm.box = "xenial64"
 
       # We use libvirt to have nested virtualization
       config.vm.provider :libvirt do |domain|
@@ -72,8 +78,8 @@ Vagrant.configure(2) do |config|
 
       puts("Assuming provider is Virtualbox...")
 
-      # For Virtualbox using 'ubuntu/trusty64'
-      config.vm.box = "ubuntu/trusty64"
+      # For Virtualbox using 'ubuntu/xenial64'
+      config.vm.box = "ubuntu/xenial64"
 
       config.vm.provider "virtualbox" do |domain|
         domain.memory = 8192
