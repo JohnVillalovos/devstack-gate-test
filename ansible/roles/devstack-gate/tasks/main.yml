@@ -3,22 +3,22 @@
 - name: Check if we have an SSH key for the root user
   stat: path="/root/.ssh/id_rsa"
   register: has_root_ssh_key
-  sudo: yes
+  become: yes
 
 - name: Setup a throwaway SSH key for root user
   command: ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""
-  sudo: yes
+  become: yes
   when: has_root_ssh_key.stat.exists == False
 
 - name: Preserve authorized_keys file for root user
   command: cp ~root/.ssh/authorized_keys ~root/
   ignore_errors: true
-  sudo: yes
+  become: yes
 
 - name: Update apt cache
   # Only run "update_cache=yes" if the last one is more than 3600 seconds ago
   apt: update_cache=yes cache_valid_time=3600
-  sudo: yes
+  become: yes
 
 
 - name: Install packages needed for devstack-gate
@@ -35,7 +35,7 @@
     - libffi-dev                # Ansible compilation
     - libssl-dev                # Ansible compilation
     - python-dev                # Ansible compilation
-  sudo: yes
+  become: yes
 
 - name: Check if we have a /opt/git/pip-cache/
   stat: path="/opt/git/pip-cache"
@@ -44,30 +44,30 @@
 - name: Create /root/.cache/pip/ directory
   file: path=/root/.cache/pip state=directory mode=0755 recurse=yes
   when: has_pip_cache.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: rsync the pip cache
   command: rsync -rlptDH --exclude=selfcheck.json /opt/git/pip-cache/ /root/.cache/pip/
   when: has_pip_cache.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: Clone openstack-infra/system-config
   git: dest=/root/system-config repo="https://github.com/openstack-infra/system-config"
-  sudo: yes
+  become: yes
 
 - name: Run system-config/install_puppet.sh
   shell: /root/system-config/install_puppet.sh
-  sudo: yes
+  become: yes
 
 - name: Run system-config/install_modules.sh
   shell: /root/system-config/install_modules.sh
-  sudo: yes
+  become: yes
 
 - name: Run puppet apply
   shell: >
     puppet apply --modulepath=/root/system-config/modules:/etc/puppet/modules
     -e "class { openstack_project::single_use_slave: install_users => false, enable_unbound => false, ssh_key => \"$( cat .ssh/id_rsa.pub | awk '{print $2}' )\" }"
-  sudo: yes
+  become: yes
 
 # Recommend to NOT add the user 'stack' as it can make things break.
 # The 'jenkins' user/group should have already been created by the
@@ -79,7 +79,7 @@
   group:
     name: "{{item}}"
     state: present
-  sudo: yes
+  become: yes
   with_items: '{{users}}'
 
 - name: Create users
@@ -88,7 +88,7 @@
     group: "{{item}}"
     state: present
     shell: /bin/bash
-  sudo: yes
+  become: yes
   with_items: '{{users}}'
 
 - name: Ensure users can sudo without password
@@ -98,7 +98,7 @@
     owner: root
     group: root
     mode: 0440
-  sudo: yes
+  become: yes
   with_items: '{{users}}'
 
 - name: Delete any existing SSH public keys
@@ -106,7 +106,7 @@
   # they exist
   file: path="/home/{{item}}/.ssh/authorized_keys" state=absent
   with_items: '{{users}}'
-  sudo: yes
+  become: yes
 
 - name: Check if we have a ~/.ssh/id_rsa.pub file
   stat: path="~/.ssh/id_rsa.pub"
@@ -118,32 +118,32 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
   with_items: '{{users}}'
   when: has_ssh_pub_file.stat.exists == True
-  sudo: yes
+  become: yes
 
 - name: Put backup of authorized_keys on our users
   shell: cat ~root/authorized_keys >> "/home/{{item}}/.ssh/authorized_keys"
   ignore_errors: true
-  sudo: yes
+  become: yes
   with_items: '{{users}}'
 
 - name: Create directories
   # file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   file: path={{item.path|expanduser}} state=directory mode={{item.mode}} owner={{item.owner}} group={{item.group}}
   with_items: '{{dirs_to_create}}'
-  sudo: yes
+  become: yes
 
 - name: Copy files
   # copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner|default(omit)}} group={{item.group|default(omit)}}
   copy: src={{item.src}} dest={{item.dest|expanduser}} mode={{item.mode}} owner={{item.owner}} group={{item.group}}
   with_items: '{{files_to_copy}}'
-  sudo: yes
+  become: yes
 
 - name: Setup skeleton files, vimrc, etc...
   copy:
     src: etc/skel/
     dest: "/home/{{item}}/"
-  sudo: yes
-  sudo_user: "{{ item }}"
+  become: yes
+  become_user: "{{ item }}"
   with_items:
     - jenkins
     - root

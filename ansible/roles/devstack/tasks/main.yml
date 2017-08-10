@@ -2,21 +2,21 @@
 
   - name: Create 'stack' group
     group: name=stack state=present
-    sudo: yes
+    devstack: yes
 
   - name: Create 'stack' user
     user: name=stack group=stack state=present
-    sudo: yes
+    devstack: yes
 
   - name: Create devstack directory
     file: path=/home/stack/devstack state=directory owner=stack group=stack
-    sudo: yes
+    devstack: yes
 
   - name: Clone devstack
     git: dest=/home/stack/devstack repo="https://github.com/openstack-dev/devstack"
-    sudo: yes
-    sudo_user: stack
+    devstack: yes
+    devstack_user: stack
 
   - name: Run devstack/tools/create-stack-user.sh
     shell: "/home/stack/devstack/tools/create-stack-user.sh"
-    sudo: yes
+    devstack: yes

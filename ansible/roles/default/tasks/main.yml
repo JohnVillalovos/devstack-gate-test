@@ -3,7 +3,7 @@
 - name: Update apt cache
   # Only run "update_cache=yes" if the last one is more than 3600 seconds ago
   apt: update_cache=yes cache_valid_time=3600
-  sudo: yes
+  become: yes
 
 #- name: Upgrade packages
 #  apt: upgrade=dist-upgrade
@@ -20,19 +20,19 @@
     - ntpdate               # This is used, but not installed.
     - traceroute            # This is used, but not installed.
     - vim                   # We need to edit stuff at times
-  sudo: yes
+  become: yes
 
 - name: Increase soft maximum number of open files
   lineinfile:
     dest: /etc/security/limits.conf
     line: "*               soft    nofile          4096"
-  sudo: yes
+  become: yes
 
 - name: Increase hard maximum number of open files
   lineinfile:
     dest: /etc/security/limits.conf
     line: "*               hard    nofile          8192"
-  sudo: yes
+  become: yes
 
 - name: Add host name to /etc/hosts
   lineinfile:
@@ -42,4 +42,4 @@
     owner: root
     group: root
     mode: 0644
-  sudo: yes
+  become: yes
