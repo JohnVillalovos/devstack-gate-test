@@ -9,6 +9,9 @@ VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 # vagrant-mutate (1.0.4)    - if using libvirt
 # vagrant-proxyconf (1.5.2) - if behind a proxy server
 
+# Default https://atlas.hashicorp.com/ubuntu/xenial64 doesn't work
+Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
+
 # Used by vagrant-proxyconf
 use_proxy = !((ENV['http_proxy'].nil? || ENV['http_proxy'].empty?) &&
               (ENV['https_proxy'].nil? || ENV['https_proxy'].empty?))
